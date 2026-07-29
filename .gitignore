@@ -1,0 +1,8 @@
+# Full-resolution source plates. Only the -web.mp4 versions ship.
+media/*.mp4
+!media/*-web.mp4
+
+# Local
+.DS_Store
+Thumbs.db
+.vscode/

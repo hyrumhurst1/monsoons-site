@@ -1,0 +1,365 @@
+/* ============================================================
+   Monsoons — public site.
+   Deliberately single-theme: bone paper body, indigo hero. See BRAND.md.
+   ============================================================ */
+
+:root {
+  --indigo: #16202b;
+  --indigo-2: #1e2b38;
+  --bone: #e8e4da;
+  --paper: #f6f4ef;
+  --paper-2: #eeeae1;
+  --ink: #1c1a17;
+  --slate: #5a6169;
+  --verdigris: #3f7a6b;
+  --verdigris-lt: #6aab98;
+  --line: #ddd8ce;
+  --line-dk: #2c3a49;
+
+  --serif: Georgia, 'Iowan Old Style', 'Palatino Linotype', Palatino, serif;
+  --sans: 'Segoe UI', -apple-system, system-ui, Roboto, Helvetica, sans-serif;
+  --mono: ui-monospace, 'SF Mono', SFMono-Regular, Consolas, monospace;
+
+  /* Four steps and nothing between them. Ad-hoc sizes are what makes a page
+     read as assembled instead of designed. */
+  --t-xs: 0.72rem;
+  --t-sm: 0.9rem;
+  --t-base: 1.0625rem;
+  --t-md: clamp(1.12rem, 1.6vw, 1.28rem);
+  --t-lg: clamp(1.5rem, 3.2vw, 2.15rem);
+  --t-xl: clamp(2.1rem, 5.6vw, 3.7rem);
+
+  /* Secondary text is the ink at reduced strength, not a separate grey.
+     Grey-on-color is the fastest way to look cheap. */
+  --ink-2: #43413c;
+  --on-dark: #cfd6dd;
+  --on-dark-2: #a3aeb9;
+
+  --measure: 58ch;
+  --pad: clamp(1.15rem, 4vw, 2.75rem);
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  /* Body copy is set in the serif. The sans is reserved for interface chrome,
+     so the reading experience is editorial rather than default-UI. */
+  font: var(--t-base)/1.68 var(--serif);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3 {
+  font-family: var(--serif);
+  font-weight: 700;
+  text-wrap: balance;
+  margin: 0;
+}
+h1 { font-size: var(--t-xl); line-height: 1.04; letter-spacing: -0.021em; }
+h2 { font-size: var(--t-lg); line-height: 1.12; letter-spacing: -0.014em; }
+h3 { font-size: var(--t-base); line-height: 1.35; letter-spacing: -0.004em; }
+p { margin: 0; max-width: var(--measure); text-wrap: pretty; }
+a { color: var(--verdigris); text-underline-offset: 3px; text-decoration-thickness: 1px; }
+strong, b { font-weight: 700; }
+
+/* Interface chrome only. */
+.label, .btn, .nav, .tier__name, th, .answer__q, input, select, textarea, button {
+  font-family: var(--sans);
+}
+
+.label {
+  font-family: var(--sans);
+  font-size: var(--t-xs);
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  margin: 0;
+  /* Optically align the tracked caps with the flush-left text below them. */
+  text-indent: -0.09em;
+}
+.lede { font-size: var(--t-md); line-height: 1.5; color: var(--ink-2); max-width: 46ch; }
+em.mark { font-style: italic; color: var(--verdigris); }
+
+/* ---------- nav ---------- */
+
+.nav {
+  position: sticky; top: 0; z-index: 20;
+  display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;
+  padding: 0.85rem var(--pad);
+  background: rgba(246, 244, 239, 0.92);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--line);
+}
+.nav__brand {
+  font-family: var(--serif); font-size: 1.18rem; font-weight: 600;
+  text-decoration: none; color: var(--ink);
+  display: flex; align-items: center;
+}
+/* Mark plus real type, not the raster lockup. The lockup's bbox is driven by
+   the tall roundel, so scaling it to nav height rendered the wordmark at
+   about ten pixels. Live text stays crisp and selectable at any size. */
+.nav__brand { gap: 0.55rem; }
+.nav__mark { height: 34px; width: auto; display: block; }
+.nav__word { letter-spacing: -0.005em; }
+.nav__links { display: flex; gap: 1rem; margin-left: auto; align-items: center; flex-wrap: wrap; }
+.nav__links a { font-size: 0.92rem; color: var(--slate); text-decoration: none; }
+.nav__links a:hover, .nav__links a[aria-current='page'] { color: var(--verdigris); }
+
+/* ---------- buttons ---------- */
+
+.btn {
+  display: inline-block;
+  font: inherit; font-size: 0.95rem; font-weight: 600;
+  padding: 0.72rem 1.4rem;
+  border: 1px solid var(--verdigris);
+  border-radius: 3px;
+  background: var(--verdigris);
+  color: #fff;
+  text-decoration: none;
+  cursor: pointer;
+}
+.btn:hover { filter: brightness(1.08); }
+.btn--quiet { background: transparent; color: var(--verdigris); }
+.btn--quiet:hover { background: rgba(63, 122, 107, 0.09); filter: none; }
+.btn--onDark { background: var(--bone); border-color: var(--bone); color: var(--indigo); }
+.btn--onDark:hover { filter: brightness(1.04); }
+:where(a, button):focus-visible { outline: 2px solid var(--verdigris-lt); outline-offset: 3px; }
+
+/* ---------- hero ---------- */
+
+.hero {
+  position: relative;
+  min-height: min(86vh, 720px);
+  display: flex; align-items: flex-end;
+  background: var(--indigo);
+  overflow: hidden;
+}
+/* Fade the dot field itself at the edges so it dissolves into the ground
+   instead of ending on a hard rectangle. The scrim handles legibility; this
+   handles the seam where the section meets the page. */
+.hero__canvas {
+  position: absolute; inset: 0; width: 100%; height: 100%; display: block;
+  /* Fade all four edges, not just top and bottom. Two gradients intersected,
+     so the plate dissolves into the ground on every side and there is no
+     letterbox seam at any viewport ratio. */
+  -webkit-mask-image:
+    linear-gradient(to bottom, transparent 0%, #000 12%, #000 80%, transparent 100%),
+    linear-gradient(to right, transparent 0%, #000 9%, #000 91%, transparent 100%);
+  mask-image:
+    linear-gradient(to bottom, transparent 0%, #000 12%, #000 80%, transparent 100%),
+    linear-gradient(to right, transparent 0%, #000 9%, #000 91%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}
+.hero video { display: none; }
+.hero::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background:
+    linear-gradient(to top, rgba(22,32,43,0.95) 0%, rgba(22,32,43,0.78) 22%,
+                    rgba(22,32,43,0.3) 46%, transparent 66%),
+    linear-gradient(to right, rgba(22,32,43,0.66) 0%, transparent 52%);
+}
+.hero__inner {
+  position: relative; z-index: 2;
+  padding: 4rem var(--pad) 3.4rem;
+  display: flex; flex-direction: column; gap: 1.1rem;
+  max-width: 42rem;
+}
+.hero .label { color: var(--verdigris-lt); }
+.hero h1 { color: var(--bone); }
+.hero .lede { color: #b9c2cb; }
+.hero__cta { display: flex; gap: 0.7rem; flex-wrap: wrap; align-items: center; margin-top: 0.4rem; }
+.hero__note { font-size: 0.85rem; color: #8d99a5; }
+
+/* ---------- dithered band (second plate, mid page) ---------- */
+
+.band {
+  position: relative;
+  display: flex;
+  align-items: center;
+  /* Tall enough that a 16:9 plate has real presence instead of reading as a
+     letterboxed strip across a short band. */
+  min-height: min(94vh, 820px);
+  background: var(--indigo);
+  overflow: hidden;
+}
+.band__canvas {
+  position: absolute; inset: 0; width: 100%; height: 100%; display: block;
+  pointer-events: none;   /* static plate, nothing to interact with */
+  -webkit-mask-image:
+    linear-gradient(to bottom, transparent 0%, #000 14%, #000 84%, transparent 100%),
+    linear-gradient(to right, transparent 0%, #000 8%, #000 92%, transparent 100%);
+  mask-image:
+    linear-gradient(to bottom, transparent 0%, #000 14%, #000 84%, transparent 100%),
+    linear-gradient(to right, transparent 0%, #000 8%, #000 92%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}
+.band video { display: none; }
+
+/* Soften the indigo-to-paper seam on both sides of the band. */
+.band::before {
+  content: ''; position: absolute; left: 0; right: 0; height: 5rem; z-index: 1;
+  pointer-events: none;
+  top: 0;
+  background: linear-gradient(to bottom, var(--paper) 0%, rgba(246, 244, 239, 0) 100%);
+}
+.band__hem {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 5rem; z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(to top, var(--paper) 0%, rgba(246, 244, 239, 0) 100%);
+}
+.band::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background:
+    linear-gradient(to right, rgba(22,32,43,0.94) 0%, rgba(22,32,43,0.72) 38%,
+                    rgba(22,32,43,0.15) 72%, transparent 100%),
+    linear-gradient(to top, rgba(22,32,43,0.6) 0%, transparent 40%);
+}
+.band__inner {
+  position: relative; z-index: 2;
+  max-width: 40rem;
+  padding: 3.5rem var(--pad);
+  display: flex; flex-direction: column; gap: 1rem;
+}
+.band__inner .label { color: var(--verdigris-lt); }
+.band__inner h2 { color: var(--bone); }
+.band__inner .lede { color: #b9c2cb; }
+
+/* ---------- sections ---------- */
+
+.section { padding: clamp(3rem, 8vw, 5.5rem) var(--pad); }
+.section--tint { background: var(--paper-2); }
+.section--dark { background: var(--indigo); color: var(--bone); }
+.section--dark .label { color: var(--verdigris-lt); }
+.section--dark .lede, .section--dark p { color: #b9c2cb; }
+.section--dark h2, .section--dark h3 { color: var(--bone); }
+
+.wrap { max-width: 68rem; margin: 0 auto; display: flex; flex-direction: column; gap: 1.6rem; }
+.wrap--narrow { max-width: 46rem; }
+.head { display: flex; flex-direction: column; gap: 0.55rem; }
+
+/* ---------- the fake answer block ---------- */
+
+.answer {
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: #fff;
+  padding: 1.1rem 1.25rem;
+  display: flex; flex-direction: column; gap: 0.8rem;
+  max-width: 34rem;
+  box-shadow: 0 1px 2px rgba(28, 26, 23, 0.04);
+}
+.answer__q {
+  font-family: var(--mono); font-size: 0.82rem; color: var(--slate);
+  padding-bottom: 0.7rem; border-bottom: 1px solid var(--line);
+}
+.answer__body { font-size: 0.94rem; display: flex; flex-direction: column; gap: 0.5rem; }
+.answer__list { margin: 0; padding-left: 1.2rem; display: flex; flex-direction: column; gap: 0.3rem; }
+.answer__you {
+  font-size: 0.82rem; color: var(--slate); font-style: italic;
+  padding-top: 0.7rem; border-top: 1px dashed var(--line);
+}
+
+/* ---------- grids ---------- */
+
+.cols { display: grid; gap: 1.5rem; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+.col { display: flex; flex-direction: column; gap: 0.45rem; }
+.col h3 { font-family: var(--sans); font-size: 0.94rem; font-weight: 700; }
+.col p { font-size: 0.92rem; color: var(--slate); }
+.section--dark .col p { color: #a7b2bd; }
+
+/* ---------- numbered steps ---------- */
+
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 1.15rem; }
+.steps li { display: grid; grid-template-columns: 2.1rem 1fr; gap: 0.9rem; align-items: start; }
+.steps li::before {
+  content: counter(step);
+  counter-increment: step;
+  font-family: var(--serif); font-size: 1.25rem; color: var(--verdigris);
+  line-height: 1.1;
+}
+.steps { counter-reset: step; }
+.steps h3 { margin-bottom: 0.15rem; }
+.steps p { font-size: 0.92rem; color: var(--slate); }
+
+/* ---------- pricing ---------- */
+
+.tiers { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
+.tier {
+  display: flex; flex-direction: column; gap: 0.6rem;
+  padding: 1.25rem;
+  background: #fff; border: 1px solid var(--line); border-radius: 4px;
+}
+.tier--lead { border-color: var(--verdigris); box-shadow: inset 0 2px 0 var(--verdigris); }
+.tier__name { font-family: var(--sans); font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--slate); }
+.tier__price { font-family: var(--serif); font-size: 1.85rem; line-height: 1; }
+.tier__price small { font-family: var(--sans); font-size: 0.78rem; color: var(--slate); font-weight: 400; }
+.tier ul { margin: 0; padding-left: 1.1rem; display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.88rem; color: var(--slate); }
+
+/* ---------- guarantee callout ---------- */
+
+.callout {
+  border-left: 3px solid var(--verdigris-lt);
+  padding: 0.3rem 0 0.3rem 1.15rem;
+  display: flex; flex-direction: column; gap: 0.6rem;
+}
+.callout strong { color: var(--bone); }
+
+/* ---------- won't-promise list ---------- */
+
+.wont { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.95rem; }
+.wont li { display: grid; grid-template-columns: 1.4rem 1fr; gap: 0.7rem; font-size: 0.94rem; }
+.wont li::before { content: '\2014'; color: var(--verdigris); }
+.wont b { font-weight: 700; }
+
+/* ---------- faq ---------- */
+
+.faq { display: grid; gap: 0.1rem; }
+details {
+  border-bottom: 1px solid var(--line);
+  padding: 0.95rem 0;
+}
+summary {
+  cursor: pointer; font-weight: 600; font-size: 0.98rem;
+  list-style: none; display: flex; justify-content: space-between; gap: 1rem;
+}
+summary::-webkit-details-marker { display: none; }
+summary::after { content: '+'; color: var(--verdigris); font-weight: 400; font-size: 1.15rem; line-height: 1; }
+details[open] summary::after { content: '\2013'; }
+details p { margin-top: 0.6rem; font-size: 0.94rem; color: var(--slate); }
+
+/* ---------- about ---------- */
+
+.prose { display: flex; flex-direction: column; gap: 1.15rem; }
+.prose p { font-size: 1.02rem; }
+.prose h2 { margin-top: 1.2rem; }
+.pull {
+  font-family: var(--serif); font-size: clamp(1.2rem, 2.6vw, 1.55rem);
+  line-height: 1.32; color: var(--ink);
+  border-left: 3px solid var(--verdigris); padding-left: 1.15rem;
+  max-width: 34rem;
+}
+
+/* ---------- footer ---------- */
+
+.footer {
+  background: var(--indigo); color: #93a0ac;
+  padding: 2.5rem var(--pad);
+  display: flex; flex-wrap: wrap; gap: 1.2rem; justify-content: space-between;
+  border-top: 1px solid var(--line-dk);
+  font-size: 0.88rem;
+}
+.footer a { color: var(--bone); text-decoration: none; }
+.footer a:hover { color: var(--verdigris-lt); }
+.footer__area { max-width: 26rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { transition: none !important; animation: none !important; }
+}

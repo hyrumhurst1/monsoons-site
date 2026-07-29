@@ -1,0 +1,51 @@
+# We sell AI visibility, so our own site invites every answer engine in.
+# If we blocked these crawlers we could not credibly sell this.
+
+User-agent: *
+Allow: /
+
+# Answer engines and their crawlers, named explicitly.
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Amazonbot
+Allow: /
+
+User-agent: meta-externalagent
+Allow: /
+
+# Internal tooling is not for indexing.
+User-agent: *
+Disallow: /dither-lab.html
+
+Sitemap: https://monsoonsai.com/sitemap.xml

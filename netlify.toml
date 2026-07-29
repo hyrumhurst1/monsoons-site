@@ -1,0 +1,41 @@
+## Netlify config for the public site.
+## Deploy this folder only. The internal ops app is a separate deploy.
+
+[build]
+  publish = "."
+  command = ""
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "SAMEORIGIN"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+## Video is the heaviest asset and never changes once published.
+[[headers]]
+  for = "/media/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
+
+## Friendly URLs. Keeps links short on business cards and in texts.
+[[redirects]]
+  from = "/audit"
+  to = "/audit.html"
+  status = 200
+
+[[redirects]]
+  from = "/about"
+  to = "/about.html"
+  status = 200
+
+## Anything unmatched goes home rather than showing a 404.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 404
