@@ -20,6 +20,13 @@ function bayer(n) {
 const BAYER = bayer(8);
 const BN = 64;
 
+/** Deterministic 0..1 per cell. Same cell, same value, every frame. */
+function cellNoise(x, y) {
+  let h = (x * 73856093) ^ (y * 19349663);
+  h = (h ^ (h >>> 13)) * 1274126177;
+  return ((h ^ (h >>> 16)) >>> 0) / 4294967295;
+}
+
 const hexRgb = (h) => ({
   r: parseInt(h.slice(1, 3), 16),
   g: parseInt(h.slice(3, 5), 16),
@@ -51,6 +58,20 @@ export const DEFAULTS = {
   waveLift: 9,        // pixels the crest rises
   waveTilt: 0.35,     // crest slant, so it sweeps rather than moving as a wall
   waveDir: 1,         // 1 travels left to right, -1 right to left
+
+  // Smoothing. Bayer repeats an 8x8 threshold pattern, which reads as a hard
+  // regular grid. A stable per-cell hash offsets each threshold slightly,
+  // breaking that regularity into something closer to blue noise without
+  // shimmering between frames. 0 is pure Bayer, 1 is fully scattered.
+  smooth: 0.55,
+  // Temporal easing. Without it the dot field is recomputed from scratch every
+  // frame, so dots pop in and out and the whole plate crawls. Blending this
+  // frame's luminance into the last one makes cells ease between states.
+  // 0 disables it; 0.8 is very smooth but laggy on fast motion.
+  temporal: 0.62,
+  // Gamma below 1 lifts midtones before quantising, so gradients step less
+  // visibly across the available tone levels.
+  gamma: 0.85,
 };
 
 /** Natural size and readiness for either an <img> or a <video>. */
@@ -72,6 +93,7 @@ export function initDither(canvas, video, options = {}) {
 
   let cols = 0, rows = 0, pinned = null, raf = 0, stopped = false;
   let wavePhase = 0;
+  let prevLum = null;   // previous frame's luminance, for temporal easing
   const ptr = { x: -1e5, y: -1e5, active: false };
   const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -133,6 +155,19 @@ export function initDither(canvas, video, options = {}) {
       const lum = new Float32Array(cols * rows);
       for (let i = 0, p = 0; i < lum.length; i++, p += 4)
         lum[i] = (0.2126 * px[p] + 0.7152 * px[p + 1] + 0.0722 * px[p + 2]) / 255;
+
+      // Ease toward the new frame instead of snapping to it.
+      if (P.temporal > 0) {
+        if (!prevLum || prevLum.length !== lum.length) {
+          prevLum = lum.slice();
+        } else {
+          const k = P.temporal;
+          for (let i = 0; i < lum.length; i++) {
+            prevLum[i] = prevLum[i] * k + lum[i] * (1 - k);
+            lum[i] = prevLum[i];
+          }
+        }
+      }
 
       if (!pinned) pin(lum);
       const { lo, hi } = pinned;
@@ -211,8 +246,13 @@ export function initDither(canvas, video, options = {}) {
           if (v < P.floor) continue;
           v = v > 1 ? 1 : v;
 
-          const t = (BAYER[y & 7][x & 7] + 0.5) / BN;
-          const scaled = v * (L - 1);
+          let t = (BAYER[y & 7][x & 7] + 0.5) / BN;
+          if (P.smooth > 0) {
+            t += (cellNoise(x, y) - 0.5) * P.smooth;
+            t = t < 0 ? 0 : t > 1 ? 1 : t;
+          }
+          const vg = P.gamma === 1 ? v : Math.pow(v, P.gamma);
+          const scaled = vg * (L - 1);
           const base = Math.floor(scaled);
           const lvl = Math.min(L - 1, scaled - base > t ? base + 1 : base);
           if (lvl <= 0) continue;

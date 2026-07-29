@@ -3,6 +3,27 @@
    Deliberately single-theme: bone paper body, indigo hero. See BRAND.md.
    ============================================================ */
 
+/* Self-hosted variable fonts. System defaults are the loudest "generated"
+   tell there is, and a webfont CDN adds a round trip plus a privacy problem.
+   Latin subset only, so both files together are under 200KB.
+   Fraunces (OFL) carries the display personality; Newsreader (OFL) reads
+   cleanly at body size and has real character in its uppercase. */
+
+@font-face {
+  font-family: 'Fraunces';
+  src: url('./fonts/Fraunces-var.woff2') format('woff2-variations');
+  font-weight: 100 900;
+  font-display: swap;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Newsreader';
+  src: url('./fonts/Newsreader-var.woff2') format('woff2-variations');
+  font-weight: 200 800;
+  font-display: swap;
+  font-style: normal;
+}
+
 :root {
   --indigo: #16202b;
   --indigo-2: #1e2b38;
@@ -16,9 +37,24 @@
   --line: #ddd8ce;
   --line-dk: #2c3a49;
 
-  --serif: Georgia, 'Iowan Old Style', 'Palatino Linotype', Palatino, serif;
-  --sans: 'Segoe UI', -apple-system, system-ui, Roboto, Helvetica, sans-serif;
+  /* Display carries the personality. Body is the quieter companion.
+     Labels use the body face in uppercase rather than adding a third family. */
+  --display: 'Fraunces', Georgia, serif;
+  --body: 'Newsreader', Georgia, serif;
   --mono: ui-monospace, 'SF Mono', SFMono-Regular, Consolas, monospace;
+
+  /* One spacing scale. Ad-hoc gaps are what read as assembled. */
+  --s1: 0.35rem;
+  --s2: 0.7rem;
+  --s3: 1.15rem;
+  --s4: 1.9rem;
+  --s5: 3.1rem;
+  --s6: 5rem;
+
+  /* Sharp corners read editorial. Uniform 4px radius on everything is a
+     documented slop tell, so only inputs and buttons get any. */
+  --r-sm: 2px;
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
 
   /* Four steps and nothing between them. Ad-hoc sizes are what makes a page
      read as assembled instead of designed. */
@@ -48,16 +84,23 @@ body {
   color: var(--ink);
   /* Body copy is set in the serif. The sans is reserved for interface chrome,
      so the reading experience is editorial rather than default-UI. */
-  font: var(--t-base)/1.68 var(--serif);
+  font: var(--t-base)/1.66 var(--body);
+  font-optical-sizing: auto;
+  font-variant-numeric: oldstyle-nums;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
 
 h1, h2, h3 {
-  font-family: var(--serif);
+  font-family: var(--display);
   font-weight: 700;
   text-wrap: balance;
   margin: 0;
+  /* SOFT rounds the terminals slightly, WONK enables the angled variants.
+     Both are what give Fraunces its warmth instead of looking like a
+     generic high-contrast serif. */
+  font-variation-settings: 'SOFT' 25, 'WONK' 1;
+  font-optical-sizing: auto;
 }
 h1 { font-size: var(--t-xl); line-height: 1.04; letter-spacing: -0.021em; }
 h2 { font-size: var(--t-lg); line-height: 1.12; letter-spacing: -0.014em; }
@@ -68,14 +111,15 @@ strong, b { font-weight: 700; }
 
 /* Interface chrome only. */
 .label, .btn, .nav, .tier__name, th, .answer__q, input, select, textarea, button {
-  font-family: var(--sans);
+  font-family: var(--body);
 }
 
 .label {
-  font-family: var(--sans);
+  font-family: var(--body);
   white-space: nowrap;
   font-size: var(--t-xs);
   font-weight: 600;
+  font-variant-numeric: normal;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--ink-2);
@@ -97,7 +141,7 @@ em.mark { font-style: italic; color: var(--verdigris); }
   border-bottom: 1px solid var(--line);
 }
 .nav__brand {
-  font-family: var(--serif); font-size: 1.18rem; font-weight: 600;
+  font-family: var(--display); font-size: 1.18rem; font-weight: 600;
   text-decoration: none; color: var(--ink);
   display: flex; align-items: center;
 }
@@ -106,27 +150,43 @@ em.mark { font-style: italic; color: var(--verdigris); }
 .nav__lockup { height: 52px; width: auto; display: block; }
 @media (max-width: 620px) { .nav__lockup { height: 40px; } }
 .nav__links { display: flex; gap: 1rem; margin-left: auto; align-items: center; flex-wrap: wrap; }
-.nav__links a { font-size: 0.92rem; color: var(--slate); text-decoration: none; }
+.nav__links a {
+  font-size: var(--t-sm); color: var(--ink-2); text-decoration: none;
+  padding: 0.3rem 0; position: relative;
+  transition: color 0.18s var(--ease);
+}
+.nav__links a::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 0;
+  height: 1px; background: var(--verdigris);
+  transform: scaleX(0); transform-origin: left;
+  transition: transform 0.22s var(--ease);
+}
+.nav__links a:hover::after, .nav__links a[aria-current='page']::after { transform: scaleX(1); }
 .nav__links a:hover, .nav__links a[aria-current='page'] { color: var(--verdigris); }
 
 /* ---------- buttons ---------- */
 
 .btn {
   display: inline-block;
-  font: inherit; font-size: 0.95rem; font-weight: 600;
+  font: inherit; font-size: var(--t-sm); font-weight: 600;
   padding: 0.72rem 1.4rem;
   border: 1px solid var(--verdigris);
-  border-radius: 3px;
+  border-radius: var(--r-sm);
   background: var(--verdigris);
   color: #fff;
   text-decoration: none;
   cursor: pointer;
 }
-.btn:hover { filter: brightness(1.08); }
+.btn {
+  transition: background-color 0.18s var(--ease), border-color 0.18s var(--ease),
+              color 0.18s var(--ease), transform 0.18s var(--ease);
+}
+.btn:hover { background: #34655a; border-color: #34655a; transform: translateY(-1px); }
+.btn:active { transform: translateY(0); }
 .btn--quiet { background: transparent; color: var(--verdigris); }
-.btn--quiet:hover { background: rgba(63, 122, 107, 0.09); filter: none; }
+.btn--quiet:hover { background: rgba(63, 122, 107, 0.1); color: #34655a; }
 .btn--onDark { background: var(--bone); border-color: var(--bone); color: var(--indigo); }
-.btn--onDark:hover { filter: brightness(1.04); }
+.btn--onDark:hover { background: #fff; border-color: #fff; color: var(--indigo); }
 :where(a, button):focus-visible { outline: 2px solid var(--verdigris-lt); outline-offset: 3px; }
 
 /* ---------- hero ---------- */
@@ -144,6 +204,7 @@ em.mark { font-style: italic; color: var(--verdigris); }
    handles the seam where the section meets the page. */
 .hero__canvas {
   position: absolute; inset: 0; width: 100%; height: 100%; display: block;
+  pointer-events: none;   /* static video plate */
   /* Fade all four edges, not just top and bottom. Two gradients intersected,
      so the plate dissolves into the ground on every side and there is no
      letterbox seam at any viewport ratio. */
@@ -190,7 +251,7 @@ em.mark { font-style: italic; color: var(--verdigris); }
 .hero h1 { color: var(--bone); }
 .hero .lede { color: #b9c2cb; }
 .hero__cta { display: flex; gap: 0.7rem; flex-wrap: wrap; align-items: center; margin-top: 0.4rem; }
-.hero__note { font-size: 0.85rem; color: #8d99a5; }
+.hero__note { font-size: var(--t-xs); color: #8d99a5; }
 
 /* ---------- dithered band (second plate, mid page) ---------- */
 
@@ -232,7 +293,10 @@ em.mark { font-style: italic; color: var(--verdigris); }
 
 /* ---------- sections ---------- */
 
-.section { padding: clamp(3.25rem, 7vw, 6rem) var(--pad); }
+.section { padding: clamp(3.25rem, 7vw, var(--s6)) var(--pad); }
+/* The section after a full-bleed plate sits tighter, so the plate and the
+   copy that follows it read as one thought rather than two blocks. */
+.plate + .section, .band + .section, .hero + .section { padding-top: clamp(2.5rem, 5vw, 3.4rem); }
 .section + .section:not(.section--tint):not(.section--dark) {
   border-top: 1px solid var(--line);
 }
@@ -242,7 +306,7 @@ em.mark { font-style: italic; color: var(--verdigris); }
 .section--dark .lede, .section--dark p { color: #b9c2cb; }
 .section--dark h2, .section--dark h3 { color: var(--bone); }
 
-.wrap { max-width: 68rem; margin: 0 auto; display: flex; flex-direction: column; gap: 1.6rem; }
+.wrap { max-width: 68rem; margin: 0 auto; display: flex; flex-direction: column; gap: var(--s4); }
 .wrap--narrow { max-width: 46rem; }
 .head { display: flex; flex-direction: column; gap: 0.5rem; }
 .head .lede { margin-top: 0.4rem; }
@@ -251,7 +315,7 @@ em.mark { font-style: italic; color: var(--verdigris); }
 
 .answer {
   border: 1px solid var(--line);
-  border-radius: 4px;
+  border-radius: 0;
   background: #fff;
   padding: 1.1rem 1.25rem;
   display: flex; flex-direction: column; gap: 0.8rem;
@@ -259,22 +323,28 @@ em.mark { font-style: italic; color: var(--verdigris); }
   box-shadow: 0 1px 2px rgba(28, 26, 23, 0.04);
 }
 .answer__q {
-  font-family: var(--mono); font-size: 0.82rem; color: var(--slate);
+  font-family: var(--mono); font-size: var(--t-xs); color: var(--slate);
   padding-bottom: 0.7rem; border-bottom: 1px solid var(--line);
 }
-.answer__body { font-size: 0.94rem; display: flex; flex-direction: column; gap: 0.5rem; }
+.answer__body { font-size: var(--t-sm); display: flex; flex-direction: column; gap: 0.5rem; }
 .answer__list { margin: 0; padding-left: 1.2rem; display: flex; flex-direction: column; gap: 0.3rem; }
 .answer__you {
-  font-size: 0.82rem; color: var(--slate); font-style: italic;
+  font-size: var(--t-xs); color: var(--slate); font-style: italic;
   padding-top: 0.7rem; border-top: 1px dashed var(--line);
 }
 
 /* ---------- grids ---------- */
 
-.cols { display: grid; gap: 1.5rem; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
-.col { display: flex; flex-direction: column; gap: 0.45rem; }
-.col h3 { font-family: var(--sans); font-size: 0.94rem; font-weight: 700; }
-.col p { font-size: 0.92rem; color: var(--slate); }
+/* Wide minimum on purpose: narrow columns of small grey text is the
+   generic feature-grid look. 2x2 gives each column a readable measure. */
+.cols {
+  display: grid;
+  gap: var(--s4) var(--s5);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr));
+}
+.col { display: flex; flex-direction: column; gap: var(--s1); }
+.col h3 { font-family: var(--display); font-size: var(--t-base); font-weight: 700; }
+.col p { font-size: var(--t-sm); color: var(--slate); }
 .section--dark .col p { color: #a7b2bd; }
 
 /* ---------- numbered steps ---------- */
@@ -284,12 +354,12 @@ em.mark { font-style: italic; color: var(--verdigris); }
 .steps li::before {
   content: counter(step);
   counter-increment: step;
-  font-family: var(--serif); font-size: 1.25rem; color: var(--verdigris);
+  font-family: var(--display); font-size: 1.25rem; color: var(--verdigris);
   line-height: 1.1;
 }
 .steps { counter-reset: step; }
 .steps h3 { margin-bottom: 0.15rem; }
-.steps p { font-size: 0.92rem; color: var(--slate); }
+.steps p { font-size: var(--t-sm); color: var(--slate); }
 
 /* ---------- pricing ---------- */
 
@@ -298,21 +368,21 @@ em.mark { font-style: italic; color: var(--verdigris); }
 .tier {
   display: flex; flex-direction: column; gap: 0.6rem;
   padding: 1.25rem;
-  background: #fff; border: 1px solid var(--line); border-radius: 4px;
+  background: #fff; border: 1px solid var(--line); border-radius: 0;
 }
 .tier--lead { border-color: var(--verdigris); box-shadow: inset 0 2px 0 var(--verdigris); }
-.tier__name { font-family: var(--sans); font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--slate); }
-.tier__price { font-family: var(--serif); font-size: 1.85rem; line-height: 1; }
-.tier__price small { font-family: var(--sans); font-size: 0.78rem; color: var(--slate); font-weight: 400; }
+.tier__name { font-family: var(--body); font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--slate); }
+.tier__price { font-family: var(--display); font-size: 1.85rem; line-height: 1; }
+.tier__price small { font-family: var(--body); font-size: 0.78rem; color: var(--slate); font-weight: 400; }
 /* Replaces the price line now that figures are quoted after the audit. */
 .tier__note {
-  font-family: var(--serif);
-  font-size: 1.02rem;
+  font-family: var(--display);
+  font-size: var(--t-base);
   font-style: italic;
   color: var(--verdigris);
   line-height: 1.3;
 }
-.tier ul { margin: 0; padding-left: 1.1rem; display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.88rem; color: var(--slate); }
+.tier ul { margin: 0; padding-left: 1.1rem; display: flex; flex-direction: column; gap: 0.35rem; font-size: var(--t-sm); color: var(--slate); }
 
 /* ---------- guarantee callout ---------- */
 
@@ -326,7 +396,7 @@ em.mark { font-style: italic; color: var(--verdigris); }
 /* ---------- won't-promise list ---------- */
 
 .wont { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.95rem; }
-.wont li { display: grid; grid-template-columns: 1.4rem 1fr; gap: 0.7rem; font-size: 0.94rem; }
+.wont li { display: grid; grid-template-columns: 1.4rem 1fr; gap: 0.7rem; font-size: var(--t-sm); }
 .wont li::before { content: '\2014'; color: var(--verdigris); }
 .wont b { font-weight: 700; }
 
@@ -344,15 +414,15 @@ summary {
 summary::-webkit-details-marker { display: none; }
 summary::after { content: '+'; color: var(--verdigris); font-weight: 400; font-size: 1.15rem; line-height: 1; }
 details[open] summary::after { content: '\2013'; }
-details p { margin-top: 0.6rem; font-size: 0.94rem; color: var(--slate); }
+details p { margin-top: 0.6rem; font-size: var(--t-sm); color: var(--slate); }
 
 /* ---------- about ---------- */
 
 .prose { display: flex; flex-direction: column; gap: 1.15rem; }
-.prose p { font-size: 1.02rem; }
+.prose p { font-size: var(--t-base); }
 .prose h2 { margin-top: 1.2rem; }
 .pull {
-  font-family: var(--serif); font-size: clamp(1.2rem, 2.6vw, 1.55rem);
+  font-family: var(--display); font-size: clamp(1.2rem, 2.6vw, 1.55rem);
   line-height: 1.32; color: var(--ink);
   border-left: 3px solid var(--verdigris); padding-left: 1.15rem;
   max-width: 34rem;
@@ -365,7 +435,7 @@ details p { margin-top: 0.6rem; font-size: 0.94rem; color: var(--slate); }
   padding: 2.5rem var(--pad);
   display: flex; flex-wrap: wrap; gap: 1.2rem; justify-content: space-between;
   border-top: 1px solid var(--line-dk);
-  font-size: 0.88rem;
+  font-size: var(--t-sm);
 }
 .footer a { color: var(--bone); text-decoration: none; }
 .footer a:hover { color: var(--verdigris-lt); }
@@ -380,7 +450,9 @@ details p { margin-top: 0.6rem; font-size: 0.94rem; color: var(--slate); }
 
 .plate {
   padding-inline: var(--pad); position: relative; overflow: hidden; background: var(--indigo); }
-.plate canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; pointer-events: none; }
+/* Stills accept the pointer, video plates do not. The lean pairs with the
+   wave on a static image; over playing video it just fights the motion. */
+.plate canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .plate img { display: none; }
 
 /* Bridge band: wide, cinematic, text on the left. */
@@ -426,19 +498,17 @@ details p { margin-top: 0.6rem; font-size: 0.94rem; color: var(--slate); }
   position: relative;
   aspect-ratio: 2 / 3;
   overflow: hidden;
-  border-radius: 3px;
   background: var(--indigo);
 }
 .split__plate canvas {
   position: absolute; inset: 0; width: 100%; height: 100%; display: block;
-  pointer-events: none;
   -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 72%, transparent 100%);
   mask-image: linear-gradient(to bottom, #000 0%, #000 72%, transparent 100%);
 }
 .split__plate img { display: none; }
 .split__caption {
   position: absolute; z-index: 2; left: 1.1rem; right: 1.1rem; bottom: 1rem;
-  font-family: var(--sans); font-size: var(--t-xs);
+  font-family: var(--body); font-size: var(--t-xs);
   letter-spacing: 0.14em; text-transform: uppercase; color: var(--on-dark-2);
 }
 
@@ -478,14 +548,14 @@ details p { margin-top: 0.6rem; font-size: 0.94rem; color: var(--slate); }
 .plans .plan:last-child { border-bottom: 1px solid var(--line); }
 .plan__body { display: flex; flex-direction: column; gap: 0.45rem; }
 .plan__name {
-  font-family: var(--serif);
+  font-family: var(--display);
   font-size: 1.16rem;
   font-weight: 700;
   letter-spacing: -0.008em;
 }
 .plan__desc { font-size: var(--t-sm); line-height: 1.6; color: var(--ink-2); max-width: 48ch; }
 .plan__price {
-  font-family: var(--serif);
+  font-family: var(--display);
   font-size: 1.32rem;
   line-height: 1.2;
   text-align: right;
@@ -496,7 +566,7 @@ details p { margin-top: 0.6rem; font-size: 0.94rem; color: var(--slate); }
   max-width: none;
 }
 .plan__price span {
-  font-family: var(--sans);
+  font-family: var(--body);
   font-size: var(--t-xs);
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -518,7 +588,7 @@ details p { margin-top: 0.6rem; font-size: 0.94rem; color: var(--slate); }
 }
 .ba .answer { max-width: none; }
 .answer__state {
-  font-family: var(--sans);
+  font-family: var(--body);
   font-size: var(--t-xs);
   font-weight: 600;
   letter-spacing: 0.16em;

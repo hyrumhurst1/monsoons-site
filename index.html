@@ -11,6 +11,8 @@
     <link rel="canonical" href="https://monsoonsai.com/" />
     <link rel="icon" href="./assets/favicon.png" />
     <link rel="apple-touch-icon" href="./assets/favicon.png" />
+    <link rel="preload" href="./assets/fonts/Fraunces-var.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="./assets/fonts/Newsreader-var.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="stylesheet" href="./assets/site.css" />
 
     <meta property="og:type" content="website" />
@@ -632,11 +634,8 @@
         brightness: 7,
         contrast: 13,
         floor: 0.004,
-        levels: 6,
-        // Fully dithered. The pointer field leans the cells rather than
-        // revealing them, so the interaction stays without a second render mode.
-        leanRadius: 0.5,
-        leanStrength: 8,
+        levels: 8,
+        leanStrength: 0,   // video plates are static; interaction is on the stills
       });
 
       // Second plate, mid page. Only starts decoding once it scrolls into view,
@@ -654,6 +653,7 @@
             fit: 'cover',
             pixelSize: narrow ? 5 : 4,
             whiteClip: 0.1,
+            levels: 8,
             leanStrength: 0,   // static plate; the hero owns the interaction
           });
         },
@@ -666,6 +666,7 @@
         ['bridgePlate', 'bridgeSrc', {
           pixelSize: narrow ? 4 : 3,
           whiteClip: 0.13,
+          levels: 8,
           wave: true,          // crest sweeps across the bridge lights
           waveSpeed: 0.0018,
           waveWidth: 0.3,

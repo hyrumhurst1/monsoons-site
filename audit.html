@@ -10,6 +10,8 @@
     />
     <link rel="canonical" href="https://monsoonsai.com/audit.html" />
     <link rel="icon" href="./assets/favicon.png" />
+    <link rel="preload" href="./assets/fonts/Fraunces-var.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="./assets/fonts/Newsreader-var.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="stylesheet" href="./assets/site.css" />
     <style>
       .form { display: flex; flex-direction: column; gap: 1rem; max-width: 34rem; }
@@ -145,6 +147,7 @@
             fit: 'cover',
             pixelSize: 3,
             whiteClip: 0.14,
+            levels: 8,
             leanStrength: 5,
           });
         if (ocImg.complete && ocImg.naturalWidth) startPlate();
