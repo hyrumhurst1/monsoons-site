@@ -16,12 +16,11 @@
   <body>
     <nav class="nav">
       <a class="nav__brand" href="./index.html">
-        <img class="nav__mark" src="./assets/logo-mark.png" alt="" width="34" height="34" />
-        <span class="nav__word">Monsoons</span>
+        <img class="nav__lockup" src="./assets/logo-lockup.png" alt="Monsoons AI" />
       </a>
       <div class="nav__links">
         <a href="./index.html#how">How it works</a>
-        <a href="./index.html#pricing">Pricing</a>
+        <a href="./index.html#pricing">Packages</a>
         <a href="./index.html#honest">What we won’t promise</a>
         <a href="./about.html" aria-current="page">About</a>
         <a class="btn btn--quiet" href="./audit.html">Free audit</a>
@@ -88,6 +87,21 @@
           We think about that a lot, because it’s the same principle we sell. The
           channel outlasted everyone who dug it. What you build into the record stays
           in the record.
+        </p>
+      </div>
+    </section>
+
+
+    <section class="plate plate--grove">
+      <canvas id="grovePlate" aria-hidden="true"></canvas>
+      <img id="groveSrc" src="./media/grove.jpg" alt="" />
+      <div class="plate__inner">
+        <p class="label">Then and now</p>
+        <h2>These were groves before they were parking lots</h2>
+        <p class="lede">
+          Half the strip malls we walk into are standing on what used to be citrus.
+          The water still runs where somebody dug it. That is the part we think about
+          when we talk about building a record.
         </p>
       </div>
     </section>
@@ -208,7 +222,8 @@
           We build sites that look designed on purpose and that are structured so a
           machine understands them: real pages answering the questions people already
           call and ask you, marked up so AI can pull the right hours, the right services,
-          the right phone number. Starts at $2,500 and it’s yours outright.
+          the right phone number. Quoted once we have seen what you have now, and it
+          is yours outright when it ships.
         </p>
       </div>
     </section>
@@ -238,8 +253,37 @@
         </p>
       </div>
       <div>
-        <p><a href="./index.html">Home</a> · <a href="./index.html#pricing">Pricing</a> · <a href="./index.html#honest">What we won’t promise</a></p>
+        <p><a href="./index.html">Home</a> · <a href="./index.html#pricing">Packages</a> · <a href="./index.html#honest">What we won’t promise</a></p>
       </div>
     </footer>
+    <script type="module">
+      import { initDither } from './assets/dither.js';
+
+      const cv = document.getElementById('grovePlate');
+      const im = document.getElementById('groveSrc');
+      const narrow = matchMedia('(max-width: 620px)').matches;
+
+      const start = () =>
+        initDither(cv, im, {
+          fit: 'cover',
+          pixelSize: narrow ? 4 : 3,
+          whiteClip: 0.2,
+          brightness: 10,
+          levels: 6,
+          // Same idea as the bridge, deliberately a different gesture: the crest
+          // travels right to left, slants the other way, and swells slower and
+          // wider so it reads as a swell rather than a pop.
+          wave: true,
+          waveDir: -1,
+          waveTilt: -0.28,
+          waveSpeed: 0.0012,
+          waveWidth: 0.38,
+          waveGain: 0.85,
+          waveLift: 6,
+        });
+
+      if (im.complete && im.naturalWidth) start();
+      else im.addEventListener('load', start, { once: true });
+    </script>
   </body>
 </html>

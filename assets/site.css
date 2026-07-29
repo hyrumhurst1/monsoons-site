@@ -73,6 +73,7 @@ strong, b { font-weight: 700; }
 
 .label {
   font-family: var(--sans);
+  white-space: nowrap;
   font-size: var(--t-xs);
   font-weight: 600;
   letter-spacing: 0.18em;
@@ -100,12 +101,10 @@ em.mark { font-style: italic; color: var(--verdigris); }
   text-decoration: none; color: var(--ink);
   display: flex; align-items: center;
 }
-/* Mark plus real type, not the raster lockup. The lockup's bbox is driven by
-   the tall roundel, so scaling it to nav height rendered the wordmark at
-   about ten pixels. Live text stays crisp and selectable at any size. */
-.nav__brand { gap: 0.55rem; }
-.nav__mark { height: 34px; width: auto; display: block; }
-.nav__word { letter-spacing: -0.005em; }
+/* The lockup is 3:1, so at nav height the wordmark still reads. alt text
+   carries the name for screen readers and when images are blocked. */
+.nav__lockup { height: 52px; width: auto; display: block; }
+@media (max-width: 620px) { .nav__lockup { height: 40px; } }
 .nav__links { display: flex; gap: 1rem; margin-left: auto; align-items: center; flex-wrap: wrap; }
 .nav__links a { font-size: 0.92rem; color: var(--slate); text-decoration: none; }
 .nav__links a:hover, .nav__links a[aria-current='page'] { color: var(--verdigris); }
@@ -133,6 +132,7 @@ em.mark { font-style: italic; color: var(--verdigris); }
 /* ---------- hero ---------- */
 
 .hero {
+  padding-inline: var(--pad);
   position: relative;
   min-height: min(86vh, 720px);
   display: flex; align-items: flex-end;
@@ -160,16 +160,32 @@ em.mark { font-style: italic; color: var(--verdigris); }
 .hero::after {
   content: ''; position: absolute; inset: 0; pointer-events: none;
   background:
-    linear-gradient(to top, rgba(22,32,43,0.95) 0%, rgba(22,32,43,0.78) 22%,
-                    rgba(22,32,43,0.3) 46%, transparent 66%),
-    linear-gradient(to right, rgba(22,32,43,0.66) 0%, transparent 52%);
+    linear-gradient(to top, rgba(22,32,43,0.9) 0%, rgba(22,32,43,0.62) 26%,
+                    rgba(22,32,43,0.12) 52%, transparent 72%),
+    linear-gradient(to right, rgba(22,32,43,0.72) 0%, rgba(22,32,43,0.2) 38%, transparent 60%);
 }
-.hero__inner {
-  position: relative; z-index: 2;
-  padding: 4rem var(--pad) 3.4rem;
-  display: flex; flex-direction: column; gap: 1.1rem;
-  max-width: 42rem;
+/* One shared rail. Sections centre their content in a 68rem wrap, so the
+   full-bleed hero and bands must use the same container or nothing aligns. */
+.hero__inner,
+.band__inner,
+.plate__inner {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 68rem;
+  margin: 0 auto;
+  padding: 4rem 0 3.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
 }
+
+/* Copy stays narrow inside that wide rail: the left edge lines up with every
+   section below while the text keeps a readable measure. */
+.hero__inner > *,
+.band__inner > *,
+.plate__inner > * { max-width: 36rem; }
+.hero__inner h1 { max-width: 22ch; }
 .hero .label { color: var(--verdigris-lt); }
 .hero h1 { color: var(--bone); }
 .hero .lede { color: #b9c2cb; }
@@ -179,6 +195,7 @@ em.mark { font-style: italic; color: var(--verdigris); }
 /* ---------- dithered band (second plate, mid page) ---------- */
 
 .band {
+  padding-inline: var(--pad);
   position: relative;
   display: flex;
   align-items: center;
@@ -202,18 +219,6 @@ em.mark { font-style: italic; color: var(--verdigris); }
 }
 .band video { display: none; }
 
-/* Soften the indigo-to-paper seam on both sides of the band. */
-.band::before {
-  content: ''; position: absolute; left: 0; right: 0; height: 5rem; z-index: 1;
-  pointer-events: none;
-  top: 0;
-  background: linear-gradient(to bottom, var(--paper) 0%, rgba(246, 244, 239, 0) 100%);
-}
-.band__hem {
-  position: absolute; left: 0; right: 0; bottom: 0; height: 5rem; z-index: 1;
-  pointer-events: none;
-  background: linear-gradient(to top, var(--paper) 0%, rgba(246, 244, 239, 0) 100%);
-}
 .band::after {
   content: ''; position: absolute; inset: 0; pointer-events: none;
   background:
@@ -221,19 +226,16 @@ em.mark { font-style: italic; color: var(--verdigris); }
                     rgba(22,32,43,0.15) 72%, transparent 100%),
     linear-gradient(to top, rgba(22,32,43,0.6) 0%, transparent 40%);
 }
-.band__inner {
-  position: relative; z-index: 2;
-  max-width: 40rem;
-  padding: 3.5rem var(--pad);
-  display: flex; flex-direction: column; gap: 1rem;
-}
 .band__inner .label { color: var(--verdigris-lt); }
 .band__inner h2 { color: var(--bone); }
 .band__inner .lede { color: #b9c2cb; }
 
 /* ---------- sections ---------- */
 
-.section { padding: clamp(3rem, 8vw, 5.5rem) var(--pad); }
+.section { padding: clamp(3.25rem, 7vw, 6rem) var(--pad); }
+.section + .section:not(.section--tint):not(.section--dark) {
+  border-top: 1px solid var(--line);
+}
 .section--tint { background: var(--paper-2); }
 .section--dark { background: var(--indigo); color: var(--bone); }
 .section--dark .label { color: var(--verdigris-lt); }
@@ -242,7 +244,8 @@ em.mark { font-style: italic; color: var(--verdigris); }
 
 .wrap { max-width: 68rem; margin: 0 auto; display: flex; flex-direction: column; gap: 1.6rem; }
 .wrap--narrow { max-width: 46rem; }
-.head { display: flex; flex-direction: column; gap: 0.55rem; }
+.head { display: flex; flex-direction: column; gap: 0.5rem; }
+.head .lede { margin-top: 0.4rem; }
 
 /* ---------- the fake answer block ---------- */
 
@@ -290,7 +293,8 @@ em.mark { font-style: italic; color: var(--verdigris); }
 
 /* ---------- pricing ---------- */
 
-.tiers { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
+/* 3 + 2 rather than 4 + 1: five cards on a 4-up grid orphan the last one. */
+.tiers { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); }
 .tier {
   display: flex; flex-direction: column; gap: 0.6rem;
   padding: 1.25rem;
@@ -300,6 +304,14 @@ em.mark { font-style: italic; color: var(--verdigris); }
 .tier__name { font-family: var(--sans); font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--slate); }
 .tier__price { font-family: var(--serif); font-size: 1.85rem; line-height: 1; }
 .tier__price small { font-family: var(--sans); font-size: 0.78rem; color: var(--slate); font-weight: 400; }
+/* Replaces the price line now that figures are quoted after the audit. */
+.tier__note {
+  font-family: var(--serif);
+  font-size: 1.02rem;
+  font-style: italic;
+  color: var(--verdigris);
+  line-height: 1.3;
+}
 .tier ul { margin: 0; padding-left: 1.1rem; display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.88rem; color: var(--slate); }
 
 /* ---------- guarantee callout ---------- */
@@ -362,4 +374,166 @@ details p { margin-top: 0.6rem; font-size: 0.94rem; color: var(--slate); }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   * { transition: none !important; animation: none !important; }
+}
+
+/* ---------- still plates ---------- */
+
+.plate {
+  padding-inline: var(--pad); position: relative; overflow: hidden; background: var(--indigo); }
+.plate canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; pointer-events: none; }
+.plate img { display: none; }
+
+/* Bridge band: wide, cinematic, text on the left. */
+.plate--bridge { min-height: min(80vh, 640px); display: flex; align-items: flex-end; }
+.plate--bridge canvas {
+  -webkit-mask-image:
+    linear-gradient(to bottom, transparent 0%, #000 12%, #000 86%, transparent 100%),
+    linear-gradient(to right, transparent 0%, #000 7%, #000 93%, transparent 100%);
+  mask-image:
+    linear-gradient(to bottom, transparent 0%, #000 12%, #000 86%, transparent 100%),
+    linear-gradient(to right, transparent 0%, #000 7%, #000 93%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}
+.plate--bridge::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(to top, rgba(22,32,43,0.94) 0%, rgba(22,32,43,0.6) 34%, transparent 68%);
+}
+.plate__inner .label { color: var(--verdigris-lt); }
+.plate__inner h2 { color: var(--bone); }
+.plate__inner .lede { color: var(--on-dark); }
+
+
+
+/* ---------- audit page: form beside a vertical plate ---------- */
+
+.split {
+  display: grid;
+  gap: clamp(2rem, 5vw, 4rem);
+  grid-template-columns: minmax(30rem, 1fr) minmax(0, 20rem);
+  align-items: start;
+}
+@media (max-width: 1180px) {
+  .split { grid-template-columns: minmax(0, 1fr); }
+  .split__plate { display: none; }
+}
+@media (max-width: 900px) {
+  .split { grid-template-columns: minmax(0, 1fr); }
+  .split__plate { display: none; }   /* decorative; no reason to cost mobile bytes */
+}
+
+.split__plate {
+  position: relative;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  border-radius: 3px;
+  background: var(--indigo);
+}
+.split__plate canvas {
+  position: absolute; inset: 0; width: 100%; height: 100%; display: block;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 72%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 72%, transparent 100%);
+}
+.split__plate img { display: none; }
+.split__caption {
+  position: absolute; z-index: 2; left: 1.1rem; right: 1.1rem; bottom: 1rem;
+  font-family: var(--sans); font-size: var(--t-xs);
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--on-dark-2);
+}
+
+/* Grove plate on the About page. Shorter than the bridge so it reads as a
+   passage in the story rather than another full-height statement. */
+.plate--grove { min-height: min(66vh, 520px); display: flex; align-items: flex-end; }
+.plate--grove canvas {
+  -webkit-mask-image:
+    linear-gradient(to bottom, transparent 0%, #000 14%, #000 88%, transparent 100%),
+    linear-gradient(to right, transparent 0%, #000 7%, #000 93%, transparent 100%);
+  mask-image:
+    linear-gradient(to bottom, transparent 0%, #000 14%, #000 88%, transparent 100%),
+    linear-gradient(to right, transparent 0%, #000 7%, #000 93%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}
+.plate--grove::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(to top, rgba(22,32,43,0.93) 0%, rgba(22,32,43,0.55) 40%, transparent 76%);
+}
+
+
+/* ---------- packages as editorial rows ----------
+   Five cards on an auto-fit grid always orphaned the last one and mixed three
+   type styles per card. Rows scale to any number of packages and give the
+   price a single consistent home. */
+
+.plans { display: grid; }
+.plan {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 11rem;
+  gap: 1.5rem;
+  padding: 1.6rem 0;
+  border-top: 1px solid var(--line);
+  align-items: start;
+}
+.plans .plan:last-child { border-bottom: 1px solid var(--line); }
+.plan__body { display: flex; flex-direction: column; gap: 0.45rem; }
+.plan__name {
+  font-family: var(--serif);
+  font-size: 1.16rem;
+  font-weight: 700;
+  letter-spacing: -0.008em;
+}
+.plan__desc { font-size: var(--t-sm); line-height: 1.6; color: var(--ink-2); max-width: 48ch; }
+.plan__price {
+  font-family: var(--serif);
+  font-size: 1.32rem;
+  line-height: 1.2;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  max-width: none;
+}
+.plan__price span {
+  font-family: var(--sans);
+  font-size: var(--t-xs);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  font-variant-numeric: normal;
+}
+@media (max-width: 640px) {
+  .plan { grid-template-columns: minmax(0, 1fr); gap: 0.7rem; }
+  .plan__price { text-align: left; flex-direction: row; align-items: baseline; gap: 0.6rem; }
+}
+
+/* ---------- before / after answer pair ---------- */
+
+.ba {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr));
+  align-items: start;
+}
+.ba .answer { max-width: none; }
+.answer__state {
+  font-family: var(--sans);
+  font-size: var(--t-xs);
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+.answer--after { border-color: var(--verdigris); box-shadow: inset 0 2px 0 var(--verdigris); }
+.answer--after .answer__state { color: var(--verdigris); }
+.answer__list .is-you {
+  font-weight: 700;
+  color: var(--verdigris);
+}
+.ba__note {
+  font-size: var(--t-xs);
+  letter-spacing: 0.02em;
+  color: var(--ink-2);
+  font-style: italic;
 }

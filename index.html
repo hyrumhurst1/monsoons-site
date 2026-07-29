@@ -34,7 +34,6 @@
             "description": "AI visibility for local businesses. We get East Valley businesses named and recommended by AI answer engines when nearby customers ask who to hire.",
             "url": "https://monsoonsai.com/",
             "telephone": "+1-480-289-1294",
-            "priceRange": "$400-$2500",
             "address": {
               "@type": "PostalAddress",
               "addressLocality": "Mesa",
@@ -60,11 +59,11 @@
               "@type": "OfferCatalog",
               "name": "Services",
               "itemListElement": [
-                { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "AI visibility audit" }, "price": "0", "priceCurrency": "USD" },
-                { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Get you in the answer" }, "price": "1000", "priceCurrency": "USD" },
-                { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Google Business Profile setup" }, "price": "400", "priceCurrency": "USD" },
-                { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Website build, machine readable" }, "price": "2500", "priceCurrency": "USD" },
-                { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Ongoing coverage and measurement" }, "price": "500", "priceCurrency": "USD" }
+                { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "AI visibility audit", "description": "Free. Five questions run across three answer engines, with screenshots." } },
+                { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Get you in the answer", "description": "Written coverage published across news and industry sites, business details made consistent everywhere answer engines check, five agreed questions measured." } },
+                { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Google Business Profile setup", "description": "Full profile buildout: services, hours, service area, photos, questions section, automated review requests." } },
+                { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Website build, machine readable" } },
+                { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Ongoing coverage and measurement" } }
               ]
             }
           },
@@ -89,8 +88,8 @@
               },
               {
                 "@type": "Question",
-                "name": "What does AI visibility cost?",
-                "acceptedAnswer": { "@type": "Answer", "text": "The audit is free. Getting a business into AI answers is $1,000, with a $250 deposit and the balance owed only on agreed results. Google Business Profile setup is $400. A machine readable website starts at $2,500. Ongoing monthly coverage and measurement is $500 per month." }
+                "name": "How does payment work?",
+                "acceptedAnswer": { "@type": "Answer", "text": "The audit is free. For paid work, a 25 percent deposit starts the job and covers hard costs. The remaining balance is owed only once the business is actually appearing in answer engine results, by a standard agreed in writing before work begins." }
               },
               {
                 "@type": "Question",
@@ -106,12 +105,11 @@
   <body>
     <nav class="nav">
       <a class="nav__brand" href="./index.html">
-        <img class="nav__mark" src="./assets/logo-mark.png" alt="" width="34" height="34" />
-        <span class="nav__word">Monsoons</span>
+        <img class="nav__lockup" src="./assets/logo-lockup.png" alt="Monsoons AI" />
       </a>
       <div class="nav__links">
         <a href="#how">How it works</a>
-        <a href="#pricing">Pricing</a>
+        <a href="#pricing">Packages</a>
         <a href="#honest">What we won’t promise</a>
         <a href="./about.html">About</a>
         <a class="btn btn--quiet" href="#audit">Free audit</a>
@@ -121,9 +119,9 @@
     <!-- ======================= HERO ======================= -->
     <header class="hero">
       <canvas class="hero__canvas" id="plate" aria-hidden="true"></canvas>
-      <video id="plateSrc" src="./media/monsoon-hero-web.mp4" muted loop playsinline autoplay preload="metadata"></video>
+      <video id="plateSrc" src="./media/canyon2-web.mp4" muted loop playsinline autoplay preload="metadata"></video>
       <div class="hero__inner">
-        <p class="label">Mesa · Gilbert · Chandler · Tempe · Queen Creek</p>
+        <p class="label">Mesa · Gilbert · Chandler · Tempe</p>
         <h1>Three names come up.<br /><em class="mark">None of them yours.</em></h1>
         <p class="lede">
           Your customers have started asking ChatGPT and Gemini who they should hire.
@@ -148,19 +146,42 @@
           </p>
         </div>
 
-        <div class="answer">
-          <p class="answer__q">where should I get birria tacos near Mesa Riverview?</p>
-          <div class="answer__body">
-            <p>A few well-reviewed spots near Mesa Riverview:</p>
-            <ol class="answer__list">
-              <li>A place you know</li>
-              <li>A place you have never heard of</li>
-              <li>A chain three cities away</li>
-            </ol>
+        <div class="ba">
+          <div class="answer answer--before">
+            <p class="answer__state">Today</p>
+            <p class="answer__q">where should I get birria tacos near Mesa Riverview?</p>
+            <div class="answer__body">
+              <p>A few well-reviewed spots near Mesa Riverview:</p>
+              <ol class="answer__list">
+                <li>A place you know</li>
+                <li>A place you have never heard of</li>
+                <li>A chain three cities away</li>
+              </ol>
+            </div>
+            <p class="answer__you">
+              You are not in this answer. Neither is page two, because there is not one.
+            </p>
           </div>
-          <p class="answer__you">
-            You are not in this answer. Neither is page two, because there is not one.
-          </p>
+
+          <div class="answer answer--after">
+            <p class="answer__state">The job</p>
+            <p class="answer__q">where should I get birria tacos near Mesa Riverview?</p>
+            <div class="answer__body">
+              <p>A few well-reviewed spots near Mesa Riverview:</p>
+              <ol class="answer__list">
+                <li class="is-you">Your place</li>
+                <li>A place you know</li>
+                <li>A chain three cities away</li>
+              </ol>
+            </div>
+            <p class="answer__you">
+              Named, in six of ten runs, on two of three platforms. Measured, not claimed.
+            </p>
+          </div>
+        </div>
+        <p class="ba__note">
+          An illustration of the work, not a screenshot. Real before-and-after comes
+          from your audit.
         </div>
 
         <p>
@@ -276,23 +297,101 @@
       </div>
     </section>
 
-    <!-- ======================= PUEBLO BAND ======================= -->
-    <!-- Second dithered plate. Static structure behind moving particles, so the
-         dot field reads as dust and the masonry as the thing that outlasts it. -->
-    <section class="band">
-      <canvas class="band__canvas" id="pueblo" aria-hidden="true"></canvas>
-      <video id="puebloSrc" src="./media/pueblo-web.mp4" muted loop playsinline preload="none"></video>
-      <div class="band__hem" aria-hidden="true"></div>
-      <div class="band__inner">
-        <p class="label">Why it keeps working</p>
-        <h2>The record outlasts the campaign</h2>
+    <!-- ======================= BRIDGE PLATE ======================= -->
+    <section class="plate plate--bridge">
+      <canvas id="bridgePlate" aria-hidden="true"></canvas>
+      <img id="bridgeSrc" src="./media/bridge.jpg" alt="" />
+      <div class="plate__inner">
+        <p class="label">Where we work</p>
+        <h2>Twenty minutes from anywhere in the East Valley</h2>
         <p class="lede">
-          People cut hundreds of miles of canals across this valley by hand, then
-          vanished. Fourteen centuries later settlers found the channels still in the
-          ground and used them again. What gets built into the record stays in the
-          record.
+          Mesa, Gilbert, Chandler, Tempe, Queen Creek, Apache Junction. We will come
+          sit at your counter and show you on your own phone.
         </p>
-        <p><a class="btn btn--onDark" href="./about.html">More about us</a></p>
+      </div>
+    </section>
+
+    <!-- ======================= PRICING ======================= -->
+    <section class="section section--tint" id="pricing">
+      <div class="wrap">
+        <div class="head">
+          <p class="label">Packages</p>
+          <h2>What it costs to start</h2>
+          <p class="lede">
+            Five things, and only five. No package you have to call about to hear a
+            number.
+          </p>
+        </div>
+        <div class="plans">
+          <div class="plan">
+            <div class="plan__body">
+              <p class="plan__name">The audit</p>
+              <p class="plan__desc">
+                Five questions your customers would actually ask, run on Gemini,
+                ChatGPT and Perplexity. You get the screenshots, the names it gives
+                instead of yours, and what we would fix first.
+              </p>
+            </div>
+            <p class="plan__price">Free</p>
+          </div>
+
+          <div class="plan">
+            <div class="plan__body">
+              <p class="plan__name">Get you in the answer</p>
+              <p class="plan__desc">
+                Written coverage of your business published across the news and
+                industry sites AI reads, your details made consistent everywhere it
+                checks, then five agreed questions measured ten runs each across three
+                platforms. Before-and-after report is yours to keep.
+              </p>
+            </div>
+            <p class="plan__price">from $1,000<span>25% deposit</span></p>
+          </div>
+
+          <div class="plan">
+            <div class="plan__body">
+              <p class="plan__name">Keep it up</p>
+              <p class="plan__desc">
+                New coverage every month, your questions re-measured, competitors
+                tracked. Your Google Business Profile is built out and maintained as
+                part of this, including review requests that run on their own. Cancel
+                any month.
+              </p>
+            </div>
+            <p class="plan__price">from $500<span>per month</span></p>
+          </div>
+
+          <div class="plan">
+            <div class="plan__body">
+              <p class="plan__name">A new website</p>
+              <p class="plan__desc">
+                For when the site you have is working against you. Designed on
+                purpose, fast on a phone, and structured so AI can actually read what
+                is on it. Yours outright when it ships.
+              </p>
+            </div>
+            <p class="plan__price">Custom quote</p>
+          </div>
+
+          <div class="plan">
+            <div class="plan__body">
+              <p class="plan__name">Automations and AI builds</p>
+              <p class="plan__desc">
+                Answering the same five phone questions without picking up, following
+                up on quotes, training your staff on tools they will keep using.
+                Delivered with our partner <strong>QuarterSmart</strong>, an AI studio
+                here in Mesa.
+              </p>
+            </div>
+            <p class="plan__price">Through QuarterSmart</p>
+          </div>
+        </div>
+
+        <p>
+          Every number above is a starting point, because scope depends on what the
+          audit finds. What never changes is how you pay: a deposit to start, and the
+          rest only once you are actually showing up.
+        </p>
       </div>
     </section>
 
@@ -304,9 +403,9 @@
           <h2>You don’t pay until it works</h2>
         </div>
         <p>
-          <strong>$250 to start.</strong> That covers our hard costs, distribution
-          fees, mostly, so we’re never working out of pocket and you’re never paying
-          for a promise.
+          <strong>A 25% deposit gets us started.</strong> That covers our hard costs,
+          distribution fees mostly, so we are never working out of pocket and you are
+          never paying for a promise.
         </p>
         <p>
           <strong>The balance is owed when three of your five questions show your
@@ -314,8 +413,10 @@
           three platforms, within thirty days.
         </p>
         <p>
-          If we miss it, we run the whole thing again at our cost. If we miss it twice,
-          you get the balance back and keep the coverage.
+          <strong>The rest is due once you are actually popping up</strong>, measured
+          against that standard rather than our say-so. If we miss it, we run the whole
+          thing again at our cost. If we miss it twice, the balance is refunded and you
+          keep the coverage.
         </p>
         <div class="callout">
           <p>
@@ -324,79 +425,6 @@
             something that doesn’t exist.
           </p>
         </div>
-      </div>
-    </section>
-
-    <!-- ======================= PRICING ======================= -->
-    <section class="section section--tint" id="pricing">
-      <div class="wrap">
-        <div class="head">
-          <p class="label">Pricing</p>
-          <h2>What it costs</h2>
-          <p class="lede">
-            No packages you have to call about. If it’s not on this page, we don’t sell it.
-          </p>
-        </div>
-        <div class="tiers">
-          <div class="tier tier--lead">
-            <p class="tier__name">Audit</p>
-            <p class="tier__price">Free</p>
-            <ul>
-              <li>Five questions run on three platforms</li>
-              <li>Screenshots of what AI says today</li>
-              <li>Who it names instead of you</li>
-              <li>What we’d fix first</li>
-              <li>No obligation, no card</li>
-            </ul>
-          </div>
-          <div class="tier">
-            <p class="tier__name">Get you in the answer</p>
-            <p class="tier__price">$1,000</p>
-            <ul>
-              <li>$250 deposit, rest on results</li>
-              <li>Written coverage of your business published across news and industry sites AI reads</li>
-              <li>Your name, address and hours made consistent everywhere</li>
-              <li>Five agreed questions, measured</li>
-              <li>Before-and-after report</li>
-            </ul>
-          </div>
-          <div class="tier">
-            <p class="tier__name">Google profile setup</p>
-            <p class="tier__price">$400</p>
-            <ul>
-              <li>Your Google listing built out properly</li>
-              <li>Services, hours, service area, photos</li>
-              <li>The questions section filled in</li>
-              <li>Review requests set up to run on their own</li>
-              <li>Helps regular Google searches too</li>
-            </ul>
-          </div>
-          <div class="tier">
-            <p class="tier__name">New website</p>
-            <p class="tier__price">from $2,500</p>
-            <ul>
-              <li>A site that actually looks good</li>
-              <li>Built so AI can read it correctly</li>
-              <li>Pages answering what people ask you most</li>
-              <li>Fast on a phone</li>
-              <li>You own it outright</li>
-            </ul>
-          </div>
-          <div class="tier">
-            <p class="tier__name">Keep it up</p>
-            <p class="tier__price">$500<small> / mo</small></p>
-            <ul>
-              <li>New coverage every month</li>
-              <li>Your questions re-measured</li>
-              <li>Competitor tracking</li>
-              <li>Cancel any month</li>
-            </ul>
-          </div>
-        </div>
-        <p style="font-size: 0.9rem; color: var(--slate)">
-          We don’t go below $900 on a build. Below that we’d be cutting the work to
-          hit a number, and you’d be paying for something we didn’t do properly.
-        </p>
       </div>
     </section>
 
@@ -423,6 +451,25 @@
           If you’ve been pitched by someone who promised any of the above, that’s worth
           knowing about them.
         </p>
+      </div>
+    </section>
+
+    <!-- ======================= PUEBLO BAND ======================= -->
+    <!-- Second dithered plate. Static structure behind moving particles, so the
+         dot field reads as dust and the masonry as the thing that outlasts it. -->
+    <section class="band">
+      <canvas class="band__canvas" id="pueblo" aria-hidden="true"></canvas>
+      <video id="puebloSrc" src="./media/pueblo-web.mp4" muted loop playsinline preload="none"></video>
+      <div class="band__inner">
+        <p class="label">Why it keeps working</p>
+        <h2>The record outlasts the campaign</h2>
+        <p class="lede">
+          People cut hundreds of miles of canals across this valley by hand, then
+          vanished. Fourteen centuries later settlers found the channels still in the
+          ground and used them again. What gets built into the record stays in the
+          record.
+        </p>
+        <p><a class="btn btn--onDark" href="./about.html">More about us</a></p>
       </div>
     </section>
 
@@ -499,7 +546,8 @@
               that look like someone designed them on purpose, and we build them so AI
               can actually read what’s on them, which most sites get wrong. Pages that
               answer what people already call and ask you, marked up so a machine
-              understands it. Starts at $2,500 and you own it outright.
+              understands it. Quoted once we have seen what you have now, and it is
+              yours outright when it ships.
             </p>
           </details>
           <details>
@@ -516,9 +564,10 @@
           <details>
             <summary>You’re a new company. Why should I trust you?</summary>
             <p>
-              Don’t. That’s what the deposit structure is for, you’re out $250 until
-              we’ve actually put you in the answer, and we show you your own phone
-              instead of a slide deck. We’d rather earn it than claim it.
+              Don’t. That is what the deposit structure is for: you are out a
+              quarter of it until we have actually put you in the answer, and we show
+              you your own phone instead of a slide deck. We would rather earn it than
+              claim it.
               <a href="./about.html">More about who we are</a>.
             </p>
           </details>
@@ -562,7 +611,7 @@
         </p>
       </div>
       <div>
-        <p><a href="./about.html">About</a> · <a href="#pricing">Pricing</a> · <a href="#honest">What we won’t promise</a></p>
+        <p><a href="./about.html">About</a> · <a href="#pricing">Packages</a> · <a href="#honest">What we won’t promise</a></p>
       </div>
     </footer>
 
@@ -574,10 +623,20 @@
       // noise, so phones step up a little.
       const narrow = matchMedia('(max-width: 620px)').matches;
       initDither(canvas, video, {
-        mode: 'reveal',        // plate renders as shot; dither appears under the pointer
         fit: 'cover',          // fill any viewport, no letterbox edges
-        revealRadius: 0.22,
-        pixelSize: narrow ? 5 : 4,
+        pixelSize: narrow ? 4 : 3,
+        // Clip more highlights and lift the floor: the moon is a small bright
+        // outlier and the canyon is mostly shadow, so without this the lower
+        // two thirds render almost no dots and read as flat dark.
+        whiteClip: 0.15,
+        brightness: 7,
+        contrast: 13,
+        floor: 0.004,
+        levels: 6,
+        // Fully dithered. The pointer field leans the cells rather than
+        // revealing them, so the interaction stays without a second render mode.
+        leanRadius: 0.5,
+        leanStrength: 8,
       });
 
       // Second plate, mid page. Only starts decoding once it scrolls into view,
@@ -600,6 +659,28 @@
         },
         { rootMargin: '250px' }
       ).observe(bandCanvas);
+
+      // Still plates. Images instead of video: lighter, and the pointer field
+      // is where the motion comes from anyway.
+      const stills = [
+        ['bridgePlate', 'bridgeSrc', {
+          pixelSize: narrow ? 4 : 3,
+          whiteClip: 0.13,
+          wave: true,          // crest sweeps across the bridge lights
+          waveSpeed: 0.0018,
+          waveWidth: 0.3,
+          waveGain: 1.25,
+          waveLift: 10,
+        }],
+      ];
+      for (const [canvasId, imgId, opts] of stills) {
+        const cv = document.getElementById(canvasId);
+        const im = document.getElementById(imgId);
+        if (!cv || !im) continue;
+        const start = () => initDither(cv, im, { fit: 'cover', ...opts });
+        if (im.complete && im.naturalWidth) start();
+        else im.addEventListener('load', start, { once: true });
+      }
     </script>
   </body>
 </html>

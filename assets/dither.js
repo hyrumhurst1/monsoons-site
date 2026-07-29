@@ -41,7 +41,23 @@ export const DEFAULTS = {
   fit: 'contain',   // 'contain' shows the whole plate, 'cover' fills the box
   leanRadius: 0.6,   // pointer field radius as a fraction of canvas width
   leanStrength: 7,   // cells of horizontal displacement at full strength
+
+  // Travelling crest, like a wave through a crowd. Dots swell and lift as it
+  // passes, then settle. Off by default.
+  wave: false,
+  waveSpeed: 0.0022,  // phase advance per frame
+  waveWidth: 0.28,    // crest width as a fraction of the canvas
+  waveGain: 1.15,     // extra dot radius at the crest
+  waveLift: 9,        // pixels the crest rises
+  waveTilt: 0.35,     // crest slant, so it sweeps rather than moving as a wall
+  waveDir: 1,         // 1 travels left to right, -1 right to left
 };
+
+/** Natural size and readiness for either an <img> or a <video>. */
+const srcW = (s) => s.videoWidth ?? s.naturalWidth ?? 0;
+const srcH = (s) => s.videoHeight ?? s.naturalHeight ?? 0;
+const srcReady = (s) =>
+  s.tagName === 'IMG' ? s.complete && s.naturalWidth > 0 : s.readyState >= 2;
 
 export function initDither(canvas, video, options = {}) {
   let P = { ...DEFAULTS, ...options };
@@ -55,6 +71,7 @@ export function initDither(canvas, video, options = {}) {
   let reveal = 0; // eased 0..1 so it fades in and out instead of snapping
 
   let cols = 0, rows = 0, pinned = null, raf = 0, stopped = false;
+  let wavePhase = 0;
   const ptr = { x: -1e5, y: -1e5, active: false };
   const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -76,6 +93,7 @@ export function initDither(canvas, video, options = {}) {
   const ro = new ResizeObserver(size);
   ro.observe(canvas.parentElement);
   video.addEventListener('loadedmetadata', size);
+  video.addEventListener('load', size);
   size();
 
   // Auto-levels must be pinned for the whole sequence — recomputing per
@@ -95,7 +113,7 @@ export function initDither(canvas, video, options = {}) {
 
   function frame() {
     if (stopped) return;
-    if (video.readyState >= 2 && canvas.width) {
+    if (srcReady(video) && canvas.width) {
       const cell = P.pixelSize;
       const cw = Math.ceil(canvas.width / cell);
       const ch = Math.ceil(canvas.height / cell);
@@ -127,6 +145,10 @@ export function initDither(canvas, video, options = {}) {
       const R = canvas.width * P.leanRadius;
 
       const isReveal = P.mode === 'reveal';
+      if (P.wave && !reduceMotion) {
+        wavePhase += P.waveSpeed;
+        if (wavePhase > 1 + P.waveWidth) wavePhase = -P.waveWidth;
+      }
 
       // Ease the reveal so entering and leaving the plate feels physical.
       // Reduced-motion users still get the interaction, just without the ramp:
@@ -196,10 +218,27 @@ export function initDither(canvas, video, options = {}) {
           if (lvl <= 0) continue;
           const tone = lvl / (L - 1);
 
+          let dx2 = cx, dy2 = cy, r = rMax * tone;
+
+          if (P.wave && !reduceMotion) {
+            // Distance from this cell to the crest, slanted so the wave sweeps
+            // diagonally instead of advancing as a flat wall.
+            const ux = P.waveDir < 0 ? 1 - x / cols : x / cols;
+            const u = ux + (y / rows) * P.waveTilt;
+            const d = Math.abs(u - wavePhase);
+            if (d < P.waveWidth) {
+              // cos falloff: smooth in and out, no visible seam at the edges.
+              const amp = 0.5 + 0.5 * Math.cos((d / P.waveWidth) * Math.PI);
+              const e = amp * amp;
+              r *= 1 + e * P.waveGain;
+              dy2 -= e * P.waveLift;
+            }
+          }
+
           const key = tone.toFixed(2);
           let arr = buckets.get(key);
           if (!arr) buckets.set(key, (arr = []));
-          arr.push(cx, cy, rMax * tone);
+          arr.push(dx2, dy2, r);
         }
       }
 
@@ -237,7 +276,7 @@ export function initDither(canvas, video, options = {}) {
    * same framing and the dither stays in register with the image.
    */
   function fitRect(W, H) {
-    const vw = video.videoWidth, vh = video.videoHeight;
+    const vw = srcW(video), vh = srcH(video);
     const vr = vw / vh, br = W / H;
     if (P.fit === 'cover') {
       let sw = vw, sh = vh, sx = 0, sy = 0;
@@ -251,7 +290,7 @@ export function initDither(canvas, video, options = {}) {
     return { sx: 0, sy: 0, sw: vw, sh: vh, dx, dy, dw, dh };
   }
 
-  video.play().catch(() => {});
+  if (typeof video.play === 'function') video.play().catch(() => {});
   frame();
 
   return {

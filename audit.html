@@ -37,12 +37,11 @@
   <body>
     <nav class="nav">
       <a class="nav__brand" href="./index.html">
-        <img class="nav__mark" src="./assets/logo-mark.png" alt="" width="34" height="34" />
-        <span class="nav__word">Monsoons</span>
+        <img class="nav__lockup" src="./assets/logo-lockup.png" alt="Monsoons AI" />
       </a>
       <div class="nav__links">
         <a href="./index.html#how">How it works</a>
-        <a href="./index.html#pricing">Pricing</a>
+        <a href="./index.html#pricing">Packages</a>
         <a href="./about.html">About</a>
       </div>
     </nav>
@@ -59,6 +58,7 @@
           </p>
         </div>
 
+        <div class="split">
         <form class="form" id="form">
           <div class="form__row">
             <label class="field">
@@ -110,6 +110,13 @@
             Rather just talk? Call or text <a href="tel:+14802891294">480-289-1294</a>.
           </p>
         </form>
+
+          <aside class="split__plate">
+            <canvas id="ocotilloPlate" aria-hidden="true"></canvas>
+            <img id="ocotilloSrc" src="./media/ocotillo.jpg" alt="" />
+            <p class="split__caption">Ocotillo · East Valley</p>
+          </aside>
+        </div>
       </div>
     </section>
 
@@ -122,12 +129,27 @@
         <p style="margin-top: 0.5rem"><a href="tel:+14802891294">480-289-1294</a></p>
       </div>
       <div>
-        <p><a href="./about.html">About</a> · <a href="./index.html#pricing">Pricing</a></p>
+        <p><a href="./about.html">About</a> · <a href="./index.html#pricing">Packages</a></p>
       </div>
     </footer>
 
     <script type="module">
+      import { initDither } from './assets/dither.js';
       import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+      const oc = document.getElementById('ocotilloPlate');
+      const ocImg = document.getElementById('ocotilloSrc');
+      if (oc && ocImg && matchMedia('(min-width: 901px)').matches) {
+        const startPlate = () =>
+          initDither(oc, ocImg, {
+            fit: 'cover',
+            pixelSize: 3,
+            whiteClip: 0.14,
+            leanStrength: 5,
+          });
+        if (ocImg.complete && ocImg.naturalWidth) startPlate();
+        else ocImg.addEventListener('load', startPlate, { once: true });
+      }
       import { SUPABASE } from './assets/supabase-config.js';
 
       const sb = createClient(SUPABASE.url, SUPABASE.anonKey);

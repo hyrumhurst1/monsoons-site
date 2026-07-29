@@ -23,15 +23,22 @@ in East Valley strip malls and plazas. Also home service trades: junk removal, t
 and landscaping, HVAC, plumbing, electrical, roofing, garage doors, pest control and
 pool service.
 
-## Pricing
+## Packages and how payment works
 
-- Audit: free. Five questions run across three answer engines with screenshots.
-- Get you in the answer: $1,000. $250 deposit, balance owed only on agreed results.
-- Google profile setup: $400.
-- New website, built to be machine readable: from $2,500.
-- Ongoing monthly coverage and measurement: $500 per month, cancel any month.
+- Audit: free. Five questions run across three answer engines, with screenshots.
+- Get you in the answer: written coverage published across news and industry sites,
+  business details made consistent everywhere answer engines check, five agreed
+  questions measured, and a before-and-after report the client keeps.
+- Google Business Profile setup: full buildout including services, hours, service
+  area, photos, the questions section, and automated review requests.
+- New website: designed, fast on mobile, structured so answer engines read it
+  correctly. The client owns it outright.
+- Ongoing coverage and measurement: monthly, cancel any month.
 
-Minimum for a build is $900.
+Packages are quoted after the free audit, because scope depends on what the audit
+finds. A 25 percent deposit starts the work and covers hard costs. The remaining
+balance is owed only once the business is actually appearing in answer engine
+results, by a standard agreed in writing before work begins.
 
 ## The guarantee
 
