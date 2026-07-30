@@ -14,7 +14,7 @@
     <link rel="apple-touch-icon" href="./assets/apple-touch-icon.png" />
     <link rel="preload" href="./assets/fonts/Fraunces-var.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="./assets/fonts/Manrope-var.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="stylesheet" href="./assets/site.css?v=2" />
+    <link rel="stylesheet" href="./assets/site.css?v=3" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content="Monsoons | Get recommended by AI in the East Valley" />
     <meta property="og:description" content="When someone asks AI who to hire in Mesa, Gilbert, Chandler or Tempe, it answers with about three names. We get you on that list. Free audit, and you don't pay until it works." />
@@ -130,8 +130,6 @@
     <main id="main">
     <!-- ======================= HERO ======================= -->
     <header class="hero">
-      <canvas class="hero__canvas" id="plate" aria-hidden="true"></canvas>
-      <video id="plateSrc" src="./media/canyon2-web.mp4" muted loop playsinline autoplay preload="metadata"></video>
       <div class="hero__inner">
         <p class="label">Mesa · Gilbert · Chandler · Tempe</p>
         <h1>Three names come up.<br /><em class="mark">None of them yours.</em></h1>
@@ -151,7 +149,7 @@
       <div class="wrap">
         <div class="head">
           <p class="label">What changed</p>
-          <h2 data-dither-head>The list got a lot shorter</h2>
+          <h2>The list got a lot shorter</h2>
           <p class="lede">
             Ten blue links became one answer with about three names in it. Being fourth
             on Google was a slow week. Being left out of a three-name answer is every week.
@@ -414,7 +412,7 @@
       <div class="wrap">
         <div class="head">
           <p class="label">The guarantee</p>
-          <h2 data-dither-head>You don’t pay until it works</h2>
+          <h2>You don’t pay until it works</h2>
         </div>
         <p>
           <strong>A 25% deposit gets us started.</strong> That covers our hard costs,
@@ -447,7 +445,7 @@
       <div class="wrap">
         <div class="head">
           <p class="label">Read this part</p>
-          <h2 data-dither-head>What we won’t promise you</h2>
+          <h2>What we won’t promise you</h2>
           <p class="lede">
             Everyone in this business is about to start overpromising. Here’s our list
             up front so you can hold us to it.
@@ -628,40 +626,8 @@
 
     <script type="module">
       import { initDither } from './assets/dither.js?v=2';
-      import { initDitherHeadings } from './assets/dither-text.js?v=2';
       import { mountPlate } from './assets/plate.js?v=2';
-      const canvas = document.getElementById('plate');
-      const video = document.getElementById('plateSrc');
-      // Fine grid at 3px. On a narrow canvas that dissolves the subject into
-      // noise, so phones step up a little.
       const narrow = matchMedia('(max-width: 620px)').matches;
-      initDither(canvas, video, {
-        fit: 'cover',          // fill any viewport, no letterbox edges
-        pixelSize: narrow ? 4 : 3,
-        // Clip more highlights and lift the floor: the moon is a small bright
-        // outlier and the canyon is mostly shadow, so without this the lower
-        // two thirds render almost no dots and read as flat dark.
-        whiteClip: 0.15,
-        brightness: 7,
-        contrast: 13,
-        floor: 0.004,
-        levels: 8,
-        leanStrength: 0,   // interaction lives on the stills, not on video
-        // The page's one animated canvas, and capped. The dot field is redrawn
-        // at 15fps rather than 60: the crest is slow enough that nobody can tell,
-        // and it is a quarter of the main-thread cost.
-        fps: 15,
-        // Ambient only: a very slow, very wide, very low-gain crest. Wide enough
-        // that no edge is ever visible, weak enough that you notice the plate is
-        // alive without being able to point at what moved. This is the whole
-        // motion budget for the page.
-        wave: true,
-        waveSpeed: 0.00055,
-        waveWidth: 0.55,
-        waveGain: 0.3,
-        waveLift: 3,
-        waveTilt: 0.5,
-      });
 
       // Second plate, mid page. Only starts decoding once it scrolls into view,
       // so it never competes with the hero for bandwidth on first paint.
@@ -708,16 +674,8 @@
                    document.getElementById(imgId), opts);
       }
 
-      // Dithered headings. Three, not ten. These are the three lines the whole
-      // pitch rests on — the problem, the honest part, the guarantee — so the
-      // treatment marks the argument's spine rather than decorating every band.
-      // Each resolves out of loose dots once, on first sight, then pauses and
-      // only wakes for the pointer. Nothing here moves at rest, which is what
-      // keeps the hero as the page's single motion moment.
-      initDitherHeadings('[data-dither-head]', { pixelSize: narrow ? 5 : 4 });
     </script>
     <script type="module" src="./assets/nav.js?v=2"></script>
     <script type="module" src="./assets/packages.js?v=2"></script>
-    <script type="module" src="./assets/logo-resolve.js?v=2"></script>
   </body>
 </html>
