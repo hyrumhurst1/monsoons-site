@@ -14,11 +14,17 @@
     <link rel="preload" href="./assets/fonts/Newsreader-var.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="stylesheet" href="./assets/site.css" />
 
+    <!-- og:url and og:image point at the live GitHub Pages deployment, not at
+         monsoonsai.com, because that domain does not resolve yet and a scraper
+         cannot fetch an image from a host that is not answering. canonical
+         deliberately still points at the real domain so search engines credit
+         it once it is live. Swap the two og lines back to monsoonsai.com the
+         day the domain connects. -->
     <meta property="og:type" content="website" />
     <meta property="og:title" content="Free AI visibility audit | Monsoons" />
     <meta property="og:description" content="We run five questions your customers actually ask on Gemini, ChatGPT and Perplexity, then send you exactly what came back. Free." />
-    <meta property="og:url" content="https://monsoonsai.com/audit.html" />
-    <meta property="og:image" content="https://monsoonsai.com/assets/og-audit.png" />
+    <meta property="og:url" content="https://hyrumhurst1.github.io/monsoons-site/audit.html" />
+    <meta property="og:image" content="https://hyrumhurst1.github.io/monsoons-site/assets/og-audit.png" />
     <meta name="twitter:card" content="summary_large_image" />
     <style>
       .form { display: flex; flex-direction: column; gap: 1rem; }
@@ -26,24 +32,22 @@
       @media (max-width: 560px) { .form__row { grid-template-columns: 1fr; } }
       .field { display: flex; flex-direction: column; gap: 0.3rem; }
       .field__label {
-        font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase;
+        font-size: var(--t-xs); letter-spacing: 0.1em; text-transform: uppercase;
         color: var(--slate);
       }
       .field input, .field textarea, .field select {
         font: inherit; padding: 0.6rem 0.7rem;
-        border: 1px solid var(--line); border-radius: 3px;
+        border: 1px solid var(--line); border-radius: var(--r-sm);
         background: #fff; color: var(--ink);
       }
       .field textarea { min-height: 5rem; resize: vertical; }
-      .field input:focus-visible, .field textarea:focus-visible, .field select:focus-visible {
-        outline: 2px solid var(--verdigris); outline-offset: 2px;
-      }
       .hp { position: absolute; left: -9999px; }
       .msg { font-size: 0.9rem; color: var(--slate); }
       .msg--bad { color: #9c3b2c; }
     </style>
   </head>
   <body>
+    <a class="skip" href="#main">Skip to content</a>
     <nav class="nav">
       <a class="nav__brand" href="./index.html">
         <img class="nav__lockup" src="./assets/logo-lockup.png" alt="Monsoons AI" />
@@ -55,7 +59,7 @@
       </div>
     </nav>
 
-    <section class="section">
+    <section class="section" id="main">
       <div class="wrap">
         <div class="head">
           <p class="label">Free audit</p>
@@ -132,10 +136,10 @@
     <footer class="footer">
       <div class="footer__area">
         <p><a href="./index.html">Monsoons</a>, AI visibility for East Valley businesses.</p>
-        <p style="margin-top: 0.5rem">
+        <p>
           Mesa, Gilbert, Chandler, Tempe, Queen Creek and Apache Junction.
         </p>
-        <p style="margin-top: 0.5rem"><a href="tel:+14802891294">480-289-1294</a></p>
+        <p><a href="tel:+14802891294">480-289-1294</a></p>
       </div>
       <div>
         <p><a href="./about.html">About</a> · <a href="./work.html">Work with us</a> · <a href="./index.html#pricing">Packages</a></p>

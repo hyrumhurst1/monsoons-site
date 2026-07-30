@@ -15,11 +15,17 @@
     <link rel="preload" href="./assets/fonts/Newsreader-var.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="stylesheet" href="./assets/site.css" />
 
+    <!-- og:url and og:image point at the live GitHub Pages deployment, not at
+         monsoonsai.com, because that domain does not resolve yet and a scraper
+         cannot fetch an image from a host that is not answering. canonical
+         deliberately still points at the real domain so search engines credit
+         it once it is live. Swap the two og lines back to monsoonsai.com the
+         day the domain connects. -->
     <meta property="og:type" content="website" />
     <meta property="og:title" content="Monsoons | Get recommended by AI in the East Valley" />
     <meta property="og:description" content="When someone asks AI who to hire in Mesa, Gilbert, Chandler or Tempe, it answers with about three names. We get you on that list. Free audit, and you don't pay until it works." />
-    <meta property="og:url" content="https://monsoonsai.com/" />
-    <meta property="og:image" content="https://monsoonsai.com/assets/og.png" />
+    <meta property="og:url" content="https://hyrumhurst1.github.io/monsoons-site/" />
+    <meta property="og:image" content="https://hyrumhurst1.github.io/monsoons-site/assets/og.png" />
     <meta name="twitter:card" content="summary_large_image" />
 
     <!-- Structured data. This is the machine-readable version of the whole page,
@@ -105,6 +111,7 @@
     </script>
   </head>
   <body>
+    <a class="skip" href="#main">Skip to content</a>
     <nav class="nav">
       <a class="nav__brand" href="./index.html">
         <img class="nav__lockup" src="./assets/logo-lockup.png" alt="Monsoons AI" />
@@ -119,7 +126,7 @@
     </nav>
 
     <!-- ======================= HERO ======================= -->
-    <header class="hero">
+    <header class="hero" id="main">
       <canvas class="hero__canvas" id="plate" aria-hidden="true"></canvas>
       <video id="plateSrc" src="./media/canyon2-web.mp4" muted loop playsinline autoplay preload="metadata"></video>
       <div class="hero__inner">
@@ -594,7 +601,6 @@
           <a
             class="btn btn--quiet"
             href="tel:+14802891294"
-            style="color: var(--bone); border-color: #3d4b5a"
             >Call or text 480-289-1294</a
           >
           <span class="hero__note">We’re in Mesa.</span>
@@ -605,10 +611,10 @@
     <footer class="footer">
       <div class="footer__area">
         <p><a href="./index.html">Monsoons</a>, AI visibility for East Valley businesses.</p>
-        <p style="margin-top: 0.5rem">
+        <p>
           Mesa, Gilbert, Chandler, Tempe, Queen Creek and Apache Junction.
         </p>
-        <p style="margin-top: 0.5rem">
+        <p>
           <a href="tel:+14802891294">480-289-1294</a>
         </p>
       </div>

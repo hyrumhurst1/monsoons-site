@@ -15,14 +15,21 @@
     <link rel="preload" href="./assets/fonts/Newsreader-var.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="stylesheet" href="./assets/site.css" />
 
+    <!-- og:url and og:image point at the live GitHub Pages deployment, not at
+         monsoonsai.com, because that domain does not resolve yet and a scraper
+         cannot fetch an image from a host that is not answering. canonical
+         deliberately still points at the real domain so search engines credit
+         it once it is live. Swap the two og lines back to monsoonsai.com the
+         day the domain connects. -->
     <meta property="og:type" content="website" />
     <meta property="og:title" content="About | Monsoons" />
     <meta property="og:description" content="We're a small East Valley company based in Mesa. New, local, and structured so you can check our work." />
-    <meta property="og:url" content="https://monsoonsai.com/about.html" />
-    <meta property="og:image" content="https://monsoonsai.com/assets/og-about.png" />
+    <meta property="og:url" content="https://hyrumhurst1.github.io/monsoons-site/about.html" />
+    <meta property="og:image" content="https://hyrumhurst1.github.io/monsoons-site/assets/og-about.png" />
     <meta name="twitter:card" content="summary_large_image" />
   </head>
   <body>
+    <a class="skip" href="#main">Skip to content</a>
     <nav class="nav">
       <a class="nav__brand" href="./index.html">
         <img class="nav__lockup" src="./assets/logo-lockup.png" alt="Monsoons AI" />
@@ -36,7 +43,7 @@
       </div>
     </nav>
 
-    <section class="section">
+    <section class="section" id="main">
       <div class="wrap">
         <div class="head">
           <p class="label">About</p>
@@ -138,7 +145,7 @@
           AI said before we touched anything. We put the standard in writing before we
           start, and you keep your money until we’ve hit it.
         </p>
-        <p class="pull" style="color: var(--bone); border-color: var(--verdigris-lt)">
+        <p class="pull">
           If we can’t prove it, we haven’t earned it. That’s the whole business model,
           not a slogan.
         </p>
@@ -269,7 +276,7 @@
     <footer class="footer">
       <div class="footer__area">
         <p><a href="./index.html">Monsoons</a>, AI visibility for East Valley businesses.</p>
-        <p style="margin-top: 0.5rem">
+        <p>
           Mesa, Gilbert, Chandler, Tempe, Queen Creek and Apache Junction.
         </p>
       </div>

@@ -68,8 +68,13 @@
   /* Secondary text is the ink at reduced strength, not a separate grey.
      Grey-on-color is the fastest way to look cheap. */
   --ink-2: #43413c;
-  --on-dark: #cfd6dd;
-  --on-dark-2: #a3aeb9;
+  /* Three greys on dark ground, scaled BY SIZE not by whim. These were seven
+     hardcoded hexes and they ran backwards — the smallest text on the page was
+     the dimmest, when small type needs more contrast, not less. */
+  --on-dark: #cfd6dd;      /* small type: notes, captions */
+  --on-dark-2: #b9c2cb;    /* body and lede */
+  --on-dark-3: #93a0ac;    /* footer chrome only */
+  --on-dark-line: #3d4b5a; /* borders on indigo */
 
   --measure: 58ch;
   --pad: clamp(1.15rem, 4vw, 2.75rem);
@@ -187,7 +192,50 @@ em.mark { font-style: italic; color: var(--verdigris); }
 .btn--quiet:hover { background: rgba(63, 122, 107, 0.1); color: #34655a; }
 .btn--onDark { background: var(--bone); border-color: var(--bone); color: var(--indigo); }
 .btn--onDark:hover { background: #fff; border-color: #fff; color: var(--indigo); }
-:where(a, button):focus-visible { outline: 2px solid var(--verdigris-lt); outline-offset: 3px; }
+/* One focus treatment for the whole site. The audit form had its own ring at a
+   different colour and offset, so tabbing into it visibly changed the ring. */
+:where(a, button, input, select, textarea, summary):focus-visible {
+  outline: 2px solid var(--verdigris-lt);
+  outline-offset: 3px;
+}
+
+/* Skip link. The sticky nav puts two to five tab stops before the h1 on every
+   page, and a keyboard user re-traverses them on each navigation. */
+.skip {
+  position: absolute;
+  left: var(--pad);
+  top: 0;
+  z-index: 50;
+  transform: translateY(-140%);
+  padding: 0.7rem 1.1rem;
+  background: var(--verdigris);
+  color: #fff;
+  font-family: var(--body);
+  font-size: var(--t-sm);
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: var(--r-sm);
+  transition: transform 0.18s var(--ease);
+}
+.skip:focus, .skip:focus-visible { transform: translateY(0.6rem); }
+
+/* The quiet button on indigo. Verdigris on indigo is only 3.3:1, which is why
+   two pages were patching this inline — and because inline declarations beat
+   author rules at any specificity, the patch also killed the hover state on a
+   phone-number CTA. Rule here, patches removed there. */
+.section--dark .btn--quiet,
+.plate .btn--quiet,
+.band .btn--quiet { color: var(--bone); border-color: var(--on-dark-line); }
+.section--dark .btn--quiet:hover,
+.plate .btn--quiet:hover,
+.band .btn--quiet:hover {
+  background: rgba(232, 228, 218, 0.1);
+  border-color: var(--bone);
+  color: var(--bone);
+}
+
+/* Same gap for the pull quote, which about.html was also patching inline. */
+.section--dark .pull { color: var(--bone); border-color: var(--verdigris-lt); }
 
 /* ---------- hero ---------- */
 
@@ -250,9 +298,9 @@ em.mark { font-style: italic; color: var(--verdigris); }
 .hero__cta { max-width: 36rem; }
 .hero .label { color: var(--verdigris-lt); }
 .hero h1 { color: var(--bone); }
-.hero .lede { color: #b9c2cb; }
+.hero .lede { color: var(--on-dark-2); }
 .hero__cta { display: flex; gap: 0.7rem; flex-wrap: wrap; align-items: center; margin-top: 0.4rem; }
-.hero__note { font-size: var(--t-xs); color: #8d99a5; }
+.hero__note { font-size: var(--t-xs); color: var(--on-dark); }
 
 /* ---------- dithered band (second plate, mid page) ---------- */
 
@@ -290,7 +338,7 @@ em.mark { font-style: italic; color: var(--verdigris); }
 }
 .band__inner .label { color: var(--verdigris-lt); }
 .band__inner h2 { color: var(--bone); }
-.band__inner .lede { color: #b9c2cb; }
+.band__inner .lede { color: var(--on-dark-2); }
 
 /* ---------- sections ---------- */
 
@@ -304,7 +352,7 @@ em.mark { font-style: italic; color: var(--verdigris); }
 .section--tint { background: var(--paper-2); }
 .section--dark { background: var(--indigo); color: var(--bone); }
 .section--dark .label { color: var(--verdigris-lt); }
-.section--dark .lede, .section--dark p { color: #b9c2cb; }
+.section--dark .lede, .section--dark p { color: var(--on-dark-2); }
 .section--dark h2, .section--dark h3 { color: var(--bone); }
 
 /* One rail, and only one. Every section centres its content in the same 68rem
@@ -343,7 +391,7 @@ em.mark { font-style: italic; color: var(--verdigris); }
 .col { display: flex; flex-direction: column; gap: var(--s1); }
 .col h3 { font-family: var(--display); font-size: var(--t-base); font-weight: 700; }
 .col p { font-size: var(--t-sm); color: var(--slate); }
-.section--dark .col p { color: #a7b2bd; }
+.section--dark .col p { color: var(--on-dark-2); }
 
 /* ---------- numbered steps ---------- */
 
@@ -434,7 +482,7 @@ details p { margin-top: 0.6rem; font-size: var(--t-sm); color: var(--slate); }
 /* ---------- footer ---------- */
 
 .footer {
-  background: var(--indigo); color: #93a0ac;
+  background: var(--indigo); color: var(--on-dark-3);
   padding: 2.5rem var(--pad);
   display: flex; flex-wrap: wrap; gap: 1.2rem; justify-content: space-between;
   border-top: 1px solid var(--line-dk);
@@ -443,6 +491,10 @@ details p { margin-top: 0.6rem; font-size: var(--t-sm); color: var(--slate); }
 .footer a { color: var(--bone); text-decoration: none; }
 .footer a:hover { color: var(--verdigris-lt); }
 .footer__area { max-width: 26rem; }
+/* Replaces eight identical inline `margin-top: 0.5rem` attributes across five
+   page footers. The adjacent-sibling selector matches exactly those and nothing
+   else. Inline styles bypass the system and drift; a rule does not. */
+.footer__area p + p { margin-top: var(--s1); }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
@@ -476,7 +528,7 @@ details p { margin-top: 0.6rem; font-size: var(--t-sm); color: var(--slate); }
 }
 .plate__inner .label { color: var(--verdigris-lt); }
 .plate__inner h2 { color: var(--bone); }
-.plate__inner .lede { color: var(--on-dark); }
+.plate__inner .lede { color: var(--on-dark-2); }
 
 
 
