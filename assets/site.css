@@ -6,8 +6,8 @@
 /* Self-hosted variable fonts. System defaults are the loudest "generated"
    tell there is, and a webfont CDN adds a round trip plus a privacy problem.
    Latin subset only, so both files together are under 200KB.
-   Fraunces (OFL) carries the display personality; Newsreader (OFL) reads
-   cleanly at body size and has real character in its uppercase. */
+   Fraunces (OFL) carries the display personality; Manrope (OFL) keeps
+   navigation, body copy, and calls to action crisp and contemporary. */
 
 @font-face {
   font-family: 'Fraunces';
@@ -17,8 +17,8 @@
   font-style: normal;
 }
 @font-face {
-  font-family: 'Newsreader';
-  src: url('./fonts/Newsreader-var.woff2') format('woff2-variations');
+  font-family: 'Manrope';
+  src: url('./fonts/Manrope-var.woff2') format('woff2-variations');
   font-weight: 200 800;
   font-display: swap;
   font-style: normal;
@@ -40,7 +40,7 @@
   /* Display carries the personality. Body is the quieter companion.
      Labels use the body face in uppercase rather than adding a third family. */
   --display: 'Fraunces', Georgia, serif;
-  --body: 'Newsreader', Georgia, serif;
+  --body: 'Manrope', system-ui, sans-serif;
   --mono: ui-monospace, 'SF Mono', SFMono-Regular, Consolas, monospace;
 
   /* One spacing scale. Ad-hoc gaps are what read as assembled. */
@@ -87,11 +87,10 @@ body {
   margin: 0;
   background: var(--paper);
   color: var(--ink);
-  /* Body copy is set in the serif. The sans is reserved for interface chrome,
-     so the reading experience is editorial rather than default-UI. */
-  font: var(--t-base)/1.66 var(--body);
+  font: 1rem/1.7 var(--body);
   font-optical-sizing: auto;
-  font-variant-numeric: oldstyle-nums;
+  font-variant-numeric: lining-nums;
+  letter-spacing: -0.006em;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -122,10 +121,10 @@ strong, b { font-weight: 700; }
 .label {
   font-family: var(--body);
   white-space: nowrap;
-  font-size: var(--t-xs);
-  font-weight: 600;
+  font-size: 0.68rem;
+  font-weight: 750;
   font-variant-numeric: normal;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--ink-2);
   margin: 0;
@@ -139,25 +138,54 @@ em.mark { font-style: italic; color: var(--verdigris); }
 
 .nav {
   position: sticky; top: 0; z-index: 20;
-  display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;
-  padding: 0.85rem var(--pad);
-  background: rgba(246, 244, 239, 0.92);
-  backdrop-filter: blur(8px);
-  border-bottom: 1px solid var(--line);
+  padding: 0 var(--pad);
+  background: rgba(246, 244, 239, 0.94);
+  backdrop-filter: blur(18px) saturate(120%);
+  border-bottom: 1px solid rgba(28, 26, 23, 0.1);
+  box-shadow: 0 10px 32px rgba(22, 32, 43, 0.04);
+}
+.nav__inner {
+  width: 100%;
+  max-width: 68rem;
+  min-height: 76px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 1.75rem;
 }
 .nav__brand {
-  font-family: var(--display); font-size: 1.18rem; font-weight: 600;
   text-decoration: none; color: var(--ink);
-  display: flex; align-items: center;
+  display: inline-flex; align-items: center; gap: 0.68rem;
+  min-height: 48px;
 }
-/* The lockup is 3:1, so at nav height the wordmark still reads. alt text
-   carries the name for screen readers and when images are blocked. */
-.nav__lockup { height: 52px; width: auto; display: block; }
-@media (max-width: 620px) { .nav__lockup { height: 40px; } }
+.nav__mark {
+  width: 42px;
+  height: 42px;
+  display: block;
+  object-fit: contain;
+}
+.nav__wordmark {
+  font-family: var(--display);
+  font-size: 1.34rem;
+  font-weight: 720;
+  line-height: 1;
+  letter-spacing: -0.035em;
+  font-variation-settings: 'SOFT' 18, 'WONK' 1;
+}
+.nav__wordmark span {
+  margin-left: 0.16em;
+  color: var(--verdigris);
+  font-family: var(--body);
+  font-size: 0.58em;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  vertical-align: 0.16em;
+}
 .nav__links { display: flex; gap: 1rem; margin-left: auto; align-items: center; flex-wrap: wrap; }
 .nav__links a {
-  font-size: var(--t-sm); color: var(--ink-2); text-decoration: none;
-  padding: 0.3rem 0; position: relative;
+  font-size: 0.78rem; font-weight: 650; color: var(--ink-2); text-decoration: none;
+  letter-spacing: 0.015em;
+  padding: 0.5rem 0; position: relative;
   transition: color 0.18s var(--ease);
 }
 .nav__links a::after {
@@ -172,25 +200,54 @@ em.mark { font-style: italic; color: var(--verdigris); }
 /* ---------- buttons ---------- */
 
 .btn {
-  display: inline-block;
-  font: inherit; font-size: var(--t-sm); font-weight: 600;
-  padding: 0.72rem 1.4rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.52rem;
+  min-height: 48px;
+  font-family: var(--body);
+  font-size: 0.76rem;
+  font-weight: 760;
+  letter-spacing: 0.045em;
+  padding: 0.82rem 1.28rem;
   border: 1px solid var(--verdigris);
-  border-radius: var(--r-sm);
+  border-radius: 999px;
   background: var(--verdigris);
   color: #fff;
   text-decoration: none;
   cursor: pointer;
+  box-shadow: 0 9px 24px rgba(63, 122, 107, 0.18), inset 0 1px rgba(255, 255, 255, 0.16);
+}
+.btn::after {
+  content: '→';
+  font-size: 1.08em;
+  line-height: 1;
+  transition: transform 0.18s var(--ease);
 }
 .btn {
   transition: background-color 0.18s var(--ease), border-color 0.18s var(--ease),
-              color 0.18s var(--ease), transform 0.18s var(--ease);
+              color 0.18s var(--ease), transform 0.18s var(--ease), box-shadow 0.18s var(--ease);
 }
-.btn:hover { background: #34655a; border-color: #34655a; transform: translateY(-1px); }
+.btn:hover {
+  background: #34655a;
+  border-color: #34655a;
+  transform: translateY(-2px);
+  box-shadow: 0 13px 30px rgba(63, 122, 107, 0.25), inset 0 1px rgba(255, 255, 255, 0.2);
+}
+.btn:hover::after { transform: translateX(3px); }
 .btn:active { transform: translateY(0); }
-.btn--quiet { background: transparent; color: var(--verdigris); }
-.btn--quiet:hover { background: rgba(63, 122, 107, 0.1); color: #34655a; }
-.btn--onDark { background: var(--bone); border-color: var(--bone); color: var(--indigo); }
+.btn--quiet {
+  background: rgba(63, 122, 107, 0.04);
+  color: var(--verdigris);
+  box-shadow: none;
+}
+.btn--quiet:hover { background: rgba(63, 122, 107, 0.11); color: #34655a; box-shadow: none; }
+.btn--onDark {
+  background: var(--bone);
+  border-color: var(--bone);
+  color: var(--indigo);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18), inset 0 1px rgba(255, 255, 255, 0.4);
+}
 .btn--onDark:hover { background: #fff; border-color: #fff; color: var(--indigo); }
 /* One focus treatment for the whole site. The audit form had its own ring at a
    different colour and offset, so tabbing into it visibly changed the ring. */
@@ -266,6 +323,27 @@ em.mark { font-style: italic; color: var(--verdigris); }
   mask-composite: intersect;
 }
 .hero video { display: none; }
+
+/* ---------- dithered headings ---------- */
+
+/* Three headings on the home page are rendered as dot fields by
+   assets/dither-text.js. The real text stays in the DOM inside .dtext__t and
+   only goes transparent once its canvas is confirmed painted, so a JS failure,
+   a missing font, or a browser without canvas leaves a normal heading rather
+   than a blank space.
+
+   The child combinator is deliberate: `.plate canvas` at (0,1,1) would
+   otherwise out-specify a plain `.dtext__c` at (0,1,0) and reposition the
+   overlay if one of these ever lands inside a plate. */
+.dtext { position: relative; }
+.dtext > .dtext__c {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  display: block; pointer-events: none;
+}
+.dtext--on > .dtext__t { color: transparent; }
+/* Only claim the pointer once the dots are actually the visible layer. */
+.dtext--on > .dtext__c { pointer-events: auto; }
+
 .hero::after {
   content: ''; position: absolute; inset: 0; pointer-events: none;
   background:
@@ -301,6 +379,62 @@ em.mark { font-style: italic; color: var(--verdigris); }
 .hero .lede { color: var(--on-dark-2); }
 .hero__cta { display: flex; gap: 0.7rem; flex-wrap: wrap; align-items: center; margin-top: 0.4rem; }
 .hero__note { font-size: var(--t-xs); color: var(--on-dark); }
+
+/* ---------- interior page heroes ---------- */
+
+.page-hero {
+  position: relative;
+  min-height: clamp(440px, 64vh, 650px);
+  padding: 0 var(--pad);
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+  isolation: isolate;
+  background-color: var(--indigo);
+  background-position: center;
+  background-size: cover;
+}
+.page-hero::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(14, 24, 34, 0.97) 0%, rgba(14, 24, 34, 0.8) 42%, rgba(14, 24, 34, 0.2) 78%),
+    linear-gradient(0deg, rgba(14, 24, 34, 0.82) 0%, transparent 58%);
+}
+.page-hero--about {
+  background-image: url('../media/saguaro-forest.png');
+  background-position: center 48%;
+}
+.page-hero--audit {
+  background-image: url('../media/valley-lights.png');
+  background-position: center 40%;
+}
+.page-hero--work {
+  background-image: url('../media/plaza.png');
+  background-position: center 47%;
+}
+.page-hero__inner {
+  width: 100%;
+  max-width: 68rem;
+  margin: 0 auto;
+  padding: clamp(4.5rem, 10vw, 7rem) 0 clamp(3.2rem, 7vw, 5rem);
+}
+.page-hero .head { max-width: 43rem; }
+.page-hero .label { color: var(--verdigris-lt); }
+.page-hero h1 {
+  max-width: 18ch;
+  color: var(--bone);
+  font-size: clamp(2.8rem, 7vw, 5.4rem);
+  line-height: 0.98;
+  letter-spacing: -0.045em;
+}
+.page-hero .lede {
+  color: var(--on-dark);
+  font-size: clamp(1rem, 1.7vw, 1.22rem);
+  line-height: 1.6;
+}
 
 /* ---------- dithered band (second plate, mid page) ---------- */
 
@@ -482,19 +616,82 @@ details p { margin-top: 0.6rem; font-size: var(--t-sm); color: var(--slate); }
 /* ---------- footer ---------- */
 
 .footer {
-  background: var(--indigo); color: var(--on-dark-3);
-  padding: 2.5rem var(--pad);
-  display: flex; flex-wrap: wrap; gap: 1.2rem; justify-content: space-between;
+  background: #101923;
+  color: var(--on-dark-3);
+  padding: clamp(3.5rem, 7vw, 5.5rem) var(--pad) 1.6rem;
   border-top: 1px solid var(--line-dk);
-  font-size: var(--t-sm);
+  font-size: 0.82rem;
 }
 .footer a { color: var(--bone); text-decoration: none; }
 .footer a:hover { color: var(--verdigris-lt); }
-.footer__area { max-width: 26rem; }
-/* Replaces eight identical inline `margin-top: 0.5rem` attributes across five
-   page footers. The adjacent-sibling selector matches exactly those and nothing
-   else. Inline styles bypass the system and drift; a rule does not. */
-.footer__area p + p { margin-top: var(--s1); }
+.footer__inner,
+.footer__bottom {
+  width: 100%;
+  max-width: 68rem;
+  margin-inline: auto;
+}
+.footer__inner {
+  display: grid;
+  grid-template-columns: minmax(18rem, 1.7fr) minmax(9rem, 0.7fr) minmax(15rem, 1fr);
+  gap: clamp(2rem, 6vw, 5rem);
+}
+.footer__brand { display: flex; flex-direction: column; align-items: flex-start; gap: 1rem; }
+.footer__lockup {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--bone);
+}
+.footer__mark { width: 52px; height: 52px; object-fit: contain; }
+.footer__wordmark {
+  font-family: var(--display);
+  font-size: 1.7rem;
+  font-weight: 720;
+  letter-spacing: -0.04em;
+}
+.footer__wordmark span {
+  color: var(--verdigris-lt);
+  font-family: var(--body);
+  font-size: 0.52em;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  vertical-align: 0.18em;
+}
+.footer__brand p { max-width: 36ch; color: var(--on-dark-2); line-height: 1.65; }
+.footer__eyebrow {
+  margin-bottom: 0.85rem;
+  color: var(--verdigris-lt);
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.footer__nav { display: flex; flex-direction: column; align-items: flex-start; gap: 0.55rem; }
+.footer__nav a { padding-block: 0.16rem; }
+.footer__contact { display: flex; flex-direction: column; align-items: flex-start; gap: 0.65rem; }
+.footer__contact strong {
+  color: var(--bone);
+  font-family: var(--display);
+  font-size: 1.3rem;
+  line-height: 1.2;
+}
+.footer__phone { font-size: 1rem; font-weight: 700; }
+.footer .btn {
+  margin-top: 0.45rem;
+  color: #fff;
+}
+.footer__bottom {
+  margin-top: clamp(3rem, 7vw, 5rem);
+  padding-top: 1.2rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  border-top: 1px solid rgba(232, 228, 218, 0.12);
+  color: var(--on-dark-3);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
@@ -651,7 +848,8 @@ details p { margin-top: 0.6rem; font-size: var(--t-sm); color: var(--slate); }
      the hero even started. On a single-scroll page the section anchors are
      not load-bearing, and they all exist in the footer, so mobile keeps the
      logo and the one action that matters. */
-  .nav { padding: 0.6rem var(--pad); gap: 0.75rem; flex-wrap: nowrap; }
+  .nav { padding-inline: var(--pad); }
+  .nav__inner { min-height: 66px; gap: 0.75rem; }
   .nav__links a:not(.btn) { display: none; }
   .nav__links { gap: 0; }
 
@@ -678,8 +876,17 @@ details p { margin-top: 0.6rem; font-size: var(--t-sm); color: var(--slate); }
   .plate--bridge { min-height: min(58vh, 440px); }
   .plate--grove { min-height: min(52vh, 380px); }
 
-  /* Footer stacks rather than splitting into two thin columns. */
-  .footer { gap: 1.5rem; }
+  .page-hero { min-height: 500px; }
+  .page-hero::before {
+    background:
+      linear-gradient(90deg, rgba(14, 24, 34, 0.94), rgba(14, 24, 34, 0.58)),
+      linear-gradient(0deg, rgba(14, 24, 34, 0.92) 0%, rgba(14, 24, 34, 0.16) 75%);
+  }
+  .page-hero__inner { padding: 5rem 0 3rem; }
+  .page-hero h1 { font-size: clamp(2.45rem, 13vw, 3.65rem); }
+
+  .footer__inner { grid-template-columns: 1fr; gap: 2.2rem; }
+  .footer__bottom { align-items: flex-start; flex-direction: column; }
 
   /* Footer links are navigation, not prose, so they get real tap area.
      Inline links inside a sentence stay as they are: they cannot be 44px
@@ -690,13 +897,13 @@ details p { margin-top: 0.6rem; font-size: var(--t-sm); color: var(--slate); }
     min-height: 44px;
     line-height: 1.9;
   }
-  .footer p { display: flex; flex-wrap: wrap; gap: 0 0.85rem; align-items: center; }
+  .footer__nav a,
+  .footer__phone { min-height: 44px; display: inline-flex; align-items: center; }
 }
 
 @media (max-width: 420px) {
-  /* The lockup is 3:1; below this it crowds the CTA. */
-  .nav__lockup { height: 34px; }
-  /* The brand link shrink-wraps its image, so it needs its own tap height. */
+  .nav__mark { width: 36px; height: 36px; }
+  .nav__wordmark { font-size: 1.15rem; }
   .nav__brand { min-height: 44px; }
 }
 

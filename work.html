@@ -10,7 +10,7 @@
     />
     <link rel="canonical" href="https://monsoonsai.com/work.html" />
     <link rel="preload" href="./assets/fonts/Fraunces-var.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href="./assets/fonts/Newsreader-var.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="./assets/fonts/Manrope-var.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="icon" href="./assets/favicon.png" />
     <link rel="stylesheet" href="./assets/site.css" />
 
@@ -29,20 +29,23 @@
   </head>
   <body>
     <a class="skip" href="#main">Skip to content</a>
-    <nav class="nav">
-      <a class="nav__brand" href="./index.html">
-        <img class="nav__lockup" src="./assets/logo-lockup.png" alt="Monsoons AI" />
-      </a>
-      <div class="nav__links">
-        <a href="./index.html#how">How it works</a>
-        <a href="./index.html#pricing">Packages</a>
-        <a href="./about.html">About</a>
-        <a class="btn btn--quiet" href="#apply">Apply</a>
+    <nav class="nav" aria-label="Primary">
+      <div class="nav__inner">
+        <a class="nav__brand" href="./index.html" aria-label="Monsoons AI home">
+          <img class="nav__mark" src="./assets/logo-mark-clean.png" alt="" width="42" height="42" />
+          <span class="nav__wordmark">Monsoons <span>AI</span></span>
+        </a>
+        <div class="nav__links">
+          <a href="./index.html#how">How it works</a>
+          <a href="./index.html#pricing">Packages</a>
+          <a href="./about.html">About</a>
+          <a class="btn btn--quiet" href="#apply">Apply</a>
+        </div>
       </div>
     </nav>
 
-    <section class="section" id="main">
-      <div class="wrap">
+    <header class="page-hero page-hero--work" id="main">
+      <div class="wrap page-hero__inner">
         <div class="head">
           <p class="label">Work with us</p>
           <h1>Get paid to tell people they are invisible</h1>
@@ -53,7 +56,7 @@
           </p>
         </div>
       </div>
-    </section>
+    </header>
 
     <!-- ======================= WHAT IT PAYS ======================= -->
     <section class="section section--tint">
@@ -249,18 +252,33 @@
     </section>
 
     <footer class="footer">
-      <div class="footer__area">
-        <p><a href="./index.html">Monsoons</a>, AI visibility for East Valley businesses.</p>
-        <p>
-          Mesa, Gilbert, Chandler, Tempe, Queen Creek and Apache Junction.
-        </p>
-        <p><a href="tel:+14802891294">480-289-1294</a></p>
-      </div>
-      <div>
-        <p>
-          <a href="./about.html">About</a> · <a href="./index.html#pricing">Packages</a> ·
+      <div class="footer__inner">
+        <div class="footer__brand">
+          <a class="footer__lockup" href="./index.html" aria-label="Monsoons AI home">
+            <img class="footer__mark" src="./assets/logo-mark-clean.png" alt="" width="52" height="52" />
+            <span class="footer__wordmark">Monsoons <span>AI</span></span>
+          </a>
+          <p>We get East Valley businesses named when customers ask AI who to hire.</p>
+          <p>Mesa · Gilbert · Chandler · Tempe · Queen Creek · Apache Junction</p>
+        </div>
+        <nav class="footer__nav" aria-label="Footer">
+          <p class="footer__eyebrow">Explore</p>
+          <a href="./index.html#how">How it works</a>
+          <a href="./index.html#pricing">Packages</a>
+          <a href="./index.html#honest">What we won’t promise</a>
+          <a href="./about.html">About</a>
           <a href="./work.html">Work with us</a>
-        </p>
+        </nav>
+        <div class="footer__contact">
+          <p class="footer__eyebrow">Start here</p>
+          <strong>See what AI says about you.</strong>
+          <a class="footer__phone" href="tel:+14802891294">480-289-1294</a>
+          <a class="btn" href="./audit.html">Request free audit</a>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 Monsoons AI</span>
+        <span>Built in Mesa, Arizona</span>
       </div>
     </footer>
   </body>

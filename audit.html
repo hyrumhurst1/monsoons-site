@@ -11,7 +11,7 @@
     <link rel="canonical" href="https://monsoonsai.com/audit.html" />
     <link rel="icon" href="./assets/favicon.png" />
     <link rel="preload" href="./assets/fonts/Fraunces-var.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href="./assets/fonts/Newsreader-var.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="./assets/fonts/Manrope-var.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="stylesheet" href="./assets/site.css" />
 
     <!-- og:url and og:image point at the live GitHub Pages deployment, not at
@@ -48,19 +48,24 @@
   </head>
   <body>
     <a class="skip" href="#main">Skip to content</a>
-    <nav class="nav">
-      <a class="nav__brand" href="./index.html">
-        <img class="nav__lockup" src="./assets/logo-lockup.png" alt="Monsoons AI" />
-      </a>
-      <div class="nav__links">
-        <a href="./index.html#how">How it works</a>
-        <a href="./index.html#pricing">Packages</a>
-        <a href="./about.html">About</a>
+    <nav class="nav" aria-label="Primary">
+      <div class="nav__inner">
+        <a class="nav__brand" href="./index.html" aria-label="Monsoons AI home">
+          <img class="nav__mark" src="./assets/logo-mark-clean.png" alt="" width="42" height="42" />
+          <span class="nav__wordmark">Monsoons <span>AI</span></span>
+        </a>
+        <div class="nav__links">
+          <a href="./index.html#how">How it works</a>
+          <a href="./index.html#pricing">Packages</a>
+          <a href="./index.html#honest">What we won’t promise</a>
+          <a href="./about.html">About</a>
+          <a class="btn btn--quiet" href="#form">Start audit</a>
+        </div>
       </div>
     </nav>
 
-    <section class="section" id="main">
-      <div class="wrap">
+    <header class="page-hero page-hero--audit" id="main">
+      <div class="wrap page-hero__inner">
         <div class="head">
           <p class="label">Free audit</p>
           <h1>Find out what AI says about you</h1>
@@ -70,7 +75,11 @@
             exactly what came back. No card, nothing to cancel.
           </p>
         </div>
+      </div>
+    </header>
 
+    <section class="section">
+      <div class="wrap">
         <div class="split">
         <form class="form" id="form">
           <div class="form__row">
@@ -134,15 +143,33 @@
     </section>
 
     <footer class="footer">
-      <div class="footer__area">
-        <p><a href="./index.html">Monsoons</a>, AI visibility for East Valley businesses.</p>
-        <p>
-          Mesa, Gilbert, Chandler, Tempe, Queen Creek and Apache Junction.
-        </p>
-        <p><a href="tel:+14802891294">480-289-1294</a></p>
+      <div class="footer__inner">
+        <div class="footer__brand">
+          <a class="footer__lockup" href="./index.html" aria-label="Monsoons AI home">
+            <img class="footer__mark" src="./assets/logo-mark-clean.png" alt="" width="52" height="52" />
+            <span class="footer__wordmark">Monsoons <span>AI</span></span>
+          </a>
+          <p>We get East Valley businesses named when customers ask AI who to hire.</p>
+          <p>Mesa · Gilbert · Chandler · Tempe · Queen Creek · Apache Junction</p>
+        </div>
+        <nav class="footer__nav" aria-label="Footer">
+          <p class="footer__eyebrow">Explore</p>
+          <a href="./index.html#how">How it works</a>
+          <a href="./index.html#pricing">Packages</a>
+          <a href="./index.html#honest">What we won’t promise</a>
+          <a href="./about.html">About</a>
+          <a href="./work.html">Work with us</a>
+        </nav>
+        <div class="footer__contact">
+          <p class="footer__eyebrow">Start here</p>
+          <strong>See what AI says about you.</strong>
+          <a class="footer__phone" href="tel:+14802891294">480-289-1294</a>
+          <a class="btn" href="./audit.html">Request free audit</a>
+        </div>
       </div>
-      <div>
-        <p><a href="./about.html">About</a> · <a href="./work.html">Work with us</a> · <a href="./index.html#pricing">Packages</a></p>
+      <div class="footer__bottom">
+        <span>© 2026 Monsoons AI</span>
+        <span>Built in Mesa, Arizona</span>
       </div>
     </footer>
 
