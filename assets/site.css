@@ -564,10 +564,13 @@ details p { margin-top: 0.6rem; font-size: var(--t-sm); color: var(--slate); }
   .plan__price { text-align: left; flex-direction: row; align-items: baseline; gap: 0.6rem; }
 }
 
-.answer--after 
-/* Lists do not inherit the paragraph measure. Govern them explicitly rather
-   than relying on their container happening to be narrow. */
-.answer__list li, .plan__desc, .tier ul li { max-width: 54ch; }
+/* Deliberately no global list-measure rule here. An earlier attempt at one left a
+   dangling `.answer--after` selector with no comma, so after comment stripping the
+   real selector became `.answer--after .answer__list li, .plan__desc, …` — which
+   silently gave the two halves of the before/after comparison different measures
+   and overrode .plan__desc. Every list already carries its own component-local
+   measure (.answer__list li 40ch, .plan__desc 48ch, .wont li 54ch). Do not
+   reintroduce a blanket rule; put the measure on the component. */
 
 /* ============================================================
    Mobile. Checked at 375px, which is where most of these buyers
@@ -703,6 +706,10 @@ details p { margin-top: 0.6rem; font-size: var(--t-sm); color: var(--slate); }
   counter-reset: ans;
   display: flex;
   flex-direction: column;
+  /* The measure lives on the list, not the items. `ch` is font-relative, so a
+     bold row resolves wider than its siblings and its bottom rule overhangs
+     them — visible as a ragged edge in a component built on hairlines. */
+  max-width: 40ch;
 }
 .answer__list li {
   counter-increment: ans;
@@ -712,7 +719,6 @@ details p { margin-top: 0.6rem; font-size: var(--t-sm); color: var(--slate); }
   padding: 0.5rem 0;
   border-bottom: 1px solid var(--line);
   font-size: var(--t-sm);
-  max-width: 40ch;
 }
 .answer__list li:last-child { border-bottom: 0; }
 .answer__list li::before {
