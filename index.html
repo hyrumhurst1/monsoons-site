@@ -13,7 +13,7 @@
     <link rel="apple-touch-icon" href="./assets/apple-touch-icon.png" />
     <link rel="preload" href="./assets/fonts/Fraunces-var.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="./assets/fonts/Manrope-var.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="stylesheet" href="./assets/site.css" />
+    <link rel="stylesheet" href="./assets/site.css?v=2" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content="Monsoons | Get recommended by AI in the East Valley" />
     <meta property="og:description" content="When someone asks AI who to hire in Mesa, Gilbert, Chandler or Tempe, it answers with about three names. We get you on that list. Free audit, and you don't pay until it works." />
@@ -633,9 +633,9 @@
     </footer>
 
     <script type="module">
-      import { initDither } from './assets/dither.js';
-      import { initDitherHeadings } from './assets/dither-text.js';
-      import { mountPlate } from './assets/plate.js';
+      import { initDither } from './assets/dither.js?v=2';
+      import { initDitherHeadings } from './assets/dither-text.js?v=2';
+      import { mountPlate } from './assets/plate.js?v=2';
       const canvas = document.getElementById('plate');
       const video = document.getElementById('plateSrc');
       // Fine grid at 3px. On a narrow canvas that dissolves the subject into
@@ -717,6 +717,6 @@
       // keeps the hero as the page's single motion moment.
       initDitherHeadings('[data-dither-head]', { pixelSize: narrow ? 5 : 4 });
     </script>
-    <script type="module" src="./assets/logo-resolve.js"></script>
+    <script type="module" src="./assets/logo-resolve.js?v=2"></script>
   </body>
 </html>

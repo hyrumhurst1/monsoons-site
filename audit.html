@@ -13,7 +13,7 @@
     <link rel="apple-touch-icon" href="./assets/apple-touch-icon.png" />
     <link rel="preload" href="./assets/fonts/Fraunces-var.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="./assets/fonts/Manrope-var.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="stylesheet" href="./assets/site.css" />
+    <link rel="stylesheet" href="./assets/site.css?v=2" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content="Free AI visibility audit | Monsoons" />
     <meta property="og:description" content="We run five questions your customers actually ask on Gemini, ChatGPT and Perplexity, then send you exactly what came back. Free." />
@@ -168,7 +168,7 @@
     </footer>
 
     <script type="module">
-      import { mountPlate } from './assets/plate.js';
+      import { mountPlate } from './assets/plate.js?v=2';
       import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
       // Only mounted wide, where the plate is actually visible beside the form.
@@ -181,7 +181,7 @@
           { pixelSize: 3, whiteClip: 0.14, levels: 8, leanStrength: 5 }
         );
       }
-      import { SUPABASE } from './assets/supabase-config.js';
+      import { SUPABASE } from './assets/supabase-config.js?v=2';
 
       const form = document.getElementById('form');
       const msg = document.getElementById('msg');
@@ -260,6 +260,6 @@
 
       } // end CONFIGURED branch
     </script>
-    <script type="module" src="./assets/logo-resolve.js"></script>
+    <script type="module" src="./assets/logo-resolve.js?v=2"></script>
   </body>
 </html>
