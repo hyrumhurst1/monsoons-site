@@ -611,16 +611,23 @@ em.mark { font-style: italic; color: var(--verdigris); }
     linear-gradient(90deg, rgba(14, 24, 34, 0.97) 0%, rgba(14, 24, 34, 0.8) 42%, rgba(14, 24, 34, 0.2) 78%),
     linear-gradient(0deg, rgba(14, 24, 34, 0.82) 0%, transparent 58%);
 }
+/* Web derivatives, not the source PNGs. These are the LCP image on their pages
+   and they were pointing at the 1.94MB, 2.35MB and 3.27MB originals — 7.5MB of
+   hero background across three pages, behind a scrim dark enough that none of
+   that detail was ever visible. The .jpg derivatives are 159KB, 277KB and 373KB.
+
+   The PNGs stay in the repo as source. Do not point production CSS at them
+   again; if a plate needs regenerating, make a new derivative. */
 .page-hero--about {
-  background-image: url('../media/saguaro-forest.png');
+  background-image: url('../media/saguaro-forest-web.jpg');
   background-position: center 48%;
 }
 .page-hero--audit {
-  background-image: url('../media/valley-lights.png');
+  background-image: url('../media/valley-lights-web.jpg');
   background-position: center 40%;
 }
 .page-hero--work {
-  background-image: url('../media/plaza.png');
+  background-image: url('../media/plaza-web.jpg');
   background-position: center 47%;
 }
 .page-hero__inner {

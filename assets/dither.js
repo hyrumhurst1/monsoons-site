@@ -131,6 +131,22 @@ export const DEFAULTS = {
   // Gamma below 1 lifts midtones before quantising, so gradients step less
   // visibly across the available tone levels.
   gamma: 0.85,
+
+  // ---- scheduling ----
+  // Frames per second for a source that genuinely changes on its own: a video, or
+  // a still with `wave` on. 0 means this instance never runs a loop and only
+  // redraws when something asks it to — which is correct for every static plate.
+  //
+  // This exists because the engine used to schedule requestAnimationFrame
+  // unconditionally, forever, for every instance on the page. A full-width plate
+  // does a source draw, a getImageData, a luminance pass, per-cell math and
+  // thousands of canvas paths per frame; doing that at 60fps for artwork that
+  // never changes is most of a mobile device's main thread. A Lighthouse mobile
+  // lab attributed ~168s of script evaluation to this file.
+  fps: 0,
+  // Skip drawing while the canvas is off screen or the tab is in the background.
+  // Only ever worth disabling for something that must keep state warm.
+  gateOnVisibility: true,
 };
 
 // Natural size and readiness for a <video>, an <img>, or a <canvas>.
@@ -159,16 +175,76 @@ export function initDither(canvas, video, options = {}) {
   let cols = 0, rows = 0, pinned = null, raf = 0, stopped = false, running = true;
   let wavePhase = 0, altPhase = 0;
   let prevLum = null;   // previous frame's luminance, for temporal easing
+  let lum = null;       // reused across frames while cols/rows are stable
+  const buckets = new Map();  // reused; arrays are truncated, not reallocated
   const ptr = { x: -1e5, y: -1e5, active: false };
   const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // A coarse pointer has no hover, so pointer deformation is dead weight there,
+  // and a narrow viewport is usually a phone doing the most work for the least
+  // gain. Both fall back to a single static render.
+  const coarse = matchMedia('(pointer: coarse)').matches;
+  const staticOnly = reduceMotion || coarse || innerWidth < 720;
 
-  canvas.addEventListener('pointermove', (e) => {
-    const r = canvas.getBoundingClientRect();
-    ptr.x = ((e.clientX - r.left) / r.width) * canvas.width;
-    ptr.y = ((e.clientY - r.top) / r.height) * canvas.height;
-    ptr.active = true;
-  });
-  canvas.addEventListener('pointerleave', () => (ptr.active = false));
+  let pending = false;   // one queued draw at most
+  let onScreen = !P.gateOnVisibility;
+
+  /**
+   * Ask for exactly one frame. Repeated calls inside the same frame collapse into
+   * one draw, which is what makes pointermove safe to wire directly: a mouse can
+   * emit far more events than there are frames.
+   */
+  function requestDraw() {
+    if (pending || stopped) return;
+    pending = true;
+    requestAnimationFrame(() => { pending = false; draw(); });
+  }
+
+  /**
+   * The continuous path, for sources that change by themselves. Still driven by
+   * rAF — so the browser stops it in a background tab for free — but it only
+   * draws when the frame budget has elapsed, and it exits entirely when the
+   * canvas scrolls away rather than spinning on a canvas nobody can see.
+   */
+  let last = 0;
+  function loop(ts) {
+    if (stopped || !running || !animated()) { raf = 0; return; }
+    if (P.gateOnVisibility && (!onScreen || document.hidden)) { raf = 0; return; }
+    const gap = 1000 / Math.max(1, P.fps);
+    if (ts - last >= gap) { last = ts; draw(); }
+    raf = requestAnimationFrame(loop);
+  }
+  const animated = () => !staticOnly && P.fps > 0;
+  function startLoop() {
+    if (raf || stopped || !running || !animated()) return;
+    if (P.gateOnVisibility && (!onScreen || document.hidden)) return;
+    raf = requestAnimationFrame(loop);
+  }
+  function stopLoop() { if (raf) { cancelAnimationFrame(raf); raf = 0; } }
+
+  if (!staticOnly) {
+    canvas.addEventListener('pointermove', (e) => {
+      const r = canvas.getBoundingClientRect();
+      ptr.x = ((e.clientX - r.left) / r.width) * canvas.width;
+      ptr.y = ((e.clientY - r.top) / r.height) * canvas.height;
+      ptr.active = true;
+      // One frame per pointer move, not a loop that outlives the gesture.
+      if (!animated()) requestDraw();
+    });
+    canvas.addEventListener('pointerleave', () => {
+      ptr.active = false;
+      if (!animated()) requestDraw();   // settle back to the undeformed field
+    });
+  }
+
+  // Visibility gating. An off-screen or background canvas draws nothing.
+  const io = new IntersectionObserver((entries) => {
+    onScreen = entries.some((e) => e.isIntersecting);
+    if (onScreen) { startLoop(); requestDraw(); } else stopLoop();
+  }, { rootMargin: '120px' });
+  if (P.gateOnVisibility) io.observe(canvas);
+
+  const onVis = () => { if (document.hidden) stopLoop(); else startLoop(); };
+  document.addEventListener('visibilitychange', onVis);
 
   function size() {
     const rect = canvas.parentElement.getBoundingClientRect();
@@ -181,10 +257,14 @@ export function initDither(canvas, video, options = {}) {
     canvas.height = Math.max(8, Math.floor(rect.height * dpr));
     pinned = null;
   }
-  const ro = new ResizeObserver(size);
+  // Assigning canvas.width clears the bitmap, so a resize must be followed by a
+  // redraw or a static plate goes blank and never comes back.
+  function onResize() { size(); requestDraw(); }
+  const ro = new ResizeObserver(onResize);
   ro.observe(canvas.parentElement);
-  video.addEventListener('loadedmetadata', size);
-  video.addEventListener('load', size);
+  const onMeta = () => { size(); requestDraw(); startLoop(); };
+  video.addEventListener('loadedmetadata', onMeta);
+  video.addEventListener('load', onMeta);
   size();
 
   // Auto-levels must be pinned for the whole sequence — recomputing per
@@ -221,7 +301,10 @@ export function initDither(canvas, video, options = {}) {
                             bufRect.dx, bufRect.dy, bufRect.dw, bufRect.dh);
 
       const px = bctx.getImageData(0, 0, cols, rows).data;
-      const lum = new Float32Array(cols * rows);
+      // Reused while the grid is stable. A fresh Float32Array per frame is a
+      // megabyte-scale allocation per second on a full-width plate, and the GC
+      // pressure showed up as long tasks rather than as slow drawing.
+      if (!lum || lum.length !== cols * rows) lum = new Float32Array(cols * rows);
       for (let i = 0, p = 0; i < lum.length; i++, p += 4)
         lum[i] = (0.2126 * px[p] + 0.7152 * px[p + 1] + 0.0722 * px[p + 2]) / 255;
 
@@ -251,14 +334,14 @@ export function initDither(canvas, video, options = {}) {
       const b = P.brightness / 100;
       const L = Math.max(2, P.levels);
       const ink = toRgb(P.ink);
-      const altOn = !!P.altInk && P.altRate > 0 && !reduceMotion;
+      const altOn = !!P.altInk && P.altRate > 0 && !staticOnly;
       const alt = altOn ? toRgb(P.altInk) : ink;
       if (altOn) altPhase += P.altSpeed;
       const rMax = (cell * (1 - P.spacing) / 2) * P.dotScale;
       const R = canvas.width * P.leanRadius;
 
       const isReveal = P.mode === 'reveal';
-      if (P.wave && !reduceMotion) {
+      if (P.wave && !staticOnly) {
         wavePhase += P.waveSpeed;
         if (wavePhase > 1 + P.waveWidth) wavePhase = -P.waveWidth;
       }
@@ -304,14 +387,16 @@ export function initDither(canvas, video, options = {}) {
         y1 = Math.min(rows, Math.ceil((ptr.y + brush) / cell));
       }
 
-      const buckets = new Map();
+      // Truncate rather than reallocate. The key set is bounded by levels x inks,
+      // so it stabilises after one frame and this Map stops growing.
+      for (const arr of buckets.values()) arr.length = 0;
       for (let y = y0; y < y1; y++) {
         for (let x = x0; x < x1; x++) {
           const cx = x * cell + cell / 2;
           const cy = y * cell + cell / 2;
           let sxi = x, syi = y;
 
-          if (!isReveal && ptr.active && !reduceMotion) {
+          if (!isReveal && ptr.active && !staticOnly) {
             const dx = cx - ptr.x, dy = cy - ptr.y;
             const d = Math.hypot(dx, dy);
             if (d < R) {
@@ -359,7 +444,7 @@ export function initDither(canvas, video, options = {}) {
             dy2 += Math.sin(a) * m;
           }
 
-          if (P.wave && !reduceMotion) {
+          if (P.wave && !staticOnly) {
             // Distance from this cell to the crest, slanted so the wave sweeps
             // diagonally instead of advancing as a flat wall.
             const ux = P.waveDir < 0 ? 1 - x / cols : x / cols;
@@ -384,6 +469,7 @@ export function initDither(canvas, video, options = {}) {
       }
 
       for (const [key, arr] of buckets) {
+        if (!arr.length) continue;
         const col = key[0] === 'a' ? alt : ink;
         g.fillStyle = `rgba(${col.r},${col.g},${col.b},${key.slice(1)})`;
         g.beginPath();
@@ -410,10 +496,11 @@ export function initDither(canvas, video, options = {}) {
     }
   }
 
+  /** Kept for the existing callers; a "frame" is now one coalesced draw. */
   function frame() {
     if (stopped || !running) return;
-    draw();
-    raf = requestAnimationFrame(frame);
+    requestDraw();
+    startLoop();
   }
 
   /**
@@ -441,15 +528,31 @@ export function initDither(canvas, video, options = {}) {
   frame();
 
   return {
-    setOpts(next) { P = { ...P, ...next }; pinned = null; },
-    // Dithered text and the nav mark are static once they have resolved, so they
-    // pause instead of holding a render loop open forever. Six idle rAF loops on
-    // one page is how a site with one motion moment ends up feeling busy.
-    pause() { running = false; cancelAnimationFrame(raf); },
-    resume() { if (stopped || running) return; running = true; frame(); },
-    /** Draw exactly one frame, whether or not the loop is running. */
+    setOpts(next) {
+      P = { ...P, ...next };
+      pinned = null;
+      // An option change can turn animation on or off, and either way the
+      // current frame is now stale.
+      if (animated()) startLoop(); else stopLoop();
+      requestDraw();
+    },
+    /** One coalesced frame. The normal way to redraw a static plate. */
+    requestDraw,
+    pause() { running = false; stopLoop(); },
+    resume() { if (stopped || running) return; running = true; requestDraw(); startLoop(); },
+    /** Draw synchronously, right now. Use when the next frame is too late. */
     step() { if (!stopped) draw(); },
     get running() { return running; },
-    stop() { stopped = true; running = false; cancelAnimationFrame(raf); ro.disconnect(); },
+    get animating() { return !!raf; },
+    stop() {
+      stopped = true;
+      running = false;
+      stopLoop();
+      ro.disconnect();
+      io.disconnect();
+      document.removeEventListener('visibilitychange', onVis);
+      video.removeEventListener('loadedmetadata', onMeta);
+      video.removeEventListener('load', onMeta);
+    },
   };
 }

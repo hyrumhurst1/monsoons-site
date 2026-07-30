@@ -172,7 +172,16 @@ export function initDitherText(el, opts = {}) {
   const DENSITY = 2;
   const pitch = opts.cell ?? 2;
   const cell = pitch * DENSITY;
-  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // Static wherever motion is unwanted or not worth it: reduced motion, a device
+  // with no hover, or a narrow viewport. Those get one settled frame and nothing
+  // else — the heading is still a dot field, it just does not move.
+  const reduce =
+    matchMedia('(prefers-reduced-motion: reduce)').matches ||
+    matchMedia('(pointer: coarse)').matches ||
+    innerWidth < 720;
+  // Frames per second while the pointer is actually over the heading. Text is a
+  // small canvas, so this is cheap — but only for as long as the gesture lasts.
+  const HOVER_FPS = 24;
 
   // Wrap the text so it keeps its own layout box while going transparent, and
   // sit the canvas on top of it. The text stays in the DOM, selectable and read
@@ -279,30 +288,43 @@ export function initDitherText(el, opts = {}) {
         smooth: 0.34 + (1 - e) * 0.7,
       });
       if (p < 1) requestAnimationFrame(tick);
-      // No pause at the end: the drifting dots need frames. Visibility, below,
-      // is what stops the loop.
-      else { d.setOpts({ pixelSize: cell, scatter: 0, smooth: 0.34 }); ready = true; }
+      else {
+        // Settle, draw one final frame, and stop. Typography must not hold a
+        // render loop open: several headings can be on screen during a scroll,
+        // alongside a full-width plate, and permanent main-thread work for a
+        // heading is not a trade worth making.
+        d.setOpts({ pixelSize: cell, scatter: 0, smooth: 0.34, fps: 0 });
+        d.step();
+        d.pause();
+        ready = true;
+      }
     })(t0);
   }
 
-  // Visibility owns the render loop. The drifting dots and the pointer field
-  // both need frames, but a heading three screens up does not, and leaving one
-  // loop per heading running is how a page with a single motion moment starts
-  // costing as much as one with ten.
   const io = new IntersectionObserver(
     (entries) => {
-      for (const e of entries) {
-        if (e.isIntersecting) {
-          resolve();
-          if (!reduce) d.resume();
-        } else if (resolved && !reduce) {
-          d.pause();
-        }
-      }
+      for (const e of entries) if (e.isIntersecting) { resolve(); io.disconnect(); }
     },
     { threshold: 0.2 }
   );
   io.observe(el);
+
+  // The drifting second ink and the pointer field live here: alive while you are
+  // interacting with the heading, idle the moment you are not. This is the whole
+  // motion budget for text.
+  if (!reduce) {
+    canvas.addEventListener('pointerenter', () => {
+      if (!ready) return;
+      d.setOpts({ fps: HOVER_FPS });
+      d.resume();
+    });
+    canvas.addEventListener('pointerleave', () => {
+      if (!ready) return;
+      d.setOpts({ fps: 0 });
+      // One frame after the engine has cleared its pointer, then stop.
+      requestAnimationFrame(() => { d.step(); d.pause(); });
+    });
+  }
 
   // A resize changes the line breaks, so the source has to be repainted.
   let rt = 0;

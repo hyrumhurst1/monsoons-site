@@ -121,8 +121,10 @@
       </div>
     </nav>
 
+
+    <main id="main">
     <!-- ======================= HERO ======================= -->
-    <header class="hero" id="main">
+    <header class="hero">
       <canvas class="hero__canvas" id="plate" aria-hidden="true"></canvas>
       <video id="plateSrc" src="./media/canyon2-web.mp4" muted loop playsinline autoplay preload="metadata"></video>
       <div class="hero__inner">
@@ -600,6 +602,8 @@
         </div>
       </div>
     </section>
+    </main>
+
 
     <footer class="footer">
       <div class="footer__inner">
@@ -653,6 +657,10 @@
         floor: 0.004,
         levels: 8,
         leanStrength: 0,   // interaction lives on the stills, not on video
+        // The page's one animated canvas, and capped. The dot field is redrawn
+        // at 15fps rather than 60: the crest is slow enough that nobody can tell,
+        // and it is a quarter of the main-thread cost.
+        fps: 15,
         // Ambient only: a very slow, very wide, very low-gain crest. Wide enough
         // that no edge is ever visible, weak enough that you notice the plate is
         // alive without being able to point at what moved. This is the whole
@@ -682,6 +690,7 @@
             whiteClip: 0.1,
             levels: 8,
             leanStrength: 0,   // static plate; the hero owns the interaction
+            fps: 12,           // video, so it has to redraw; capped low
           });
         },
         { rootMargin: '250px' }
@@ -690,15 +699,15 @@
       // Still plates. Images instead of video: lighter, and the pointer field
       // is where the motion comes from anyway.
       const stills = [
+        // Static. This was a travelling crest on a still photograph, which meant
+        // a full-width canvas redrawing forever for a plate that never changes.
+        // The interaction is the pointer now, which costs one frame per move.
         ['bridgePlate', 'bridgeSrc', {
           pixelSize: narrow ? 4 : 3,
           whiteClip: 0.13,
           levels: 8,
-          wave: true,          // crest sweeps across the bridge lights
-          waveSpeed: 0.0018,
-          waveWidth: 0.3,
-          waveGain: 1.25,
-          waveLift: 10,
+          leanRadius: 0.4,
+          leanStrength: 6,
         }],
       ];
       // Gated on scroll. These sit well below the fold, so fetching a 1400px
