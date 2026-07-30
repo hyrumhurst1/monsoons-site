@@ -48,13 +48,15 @@
           <img class="nav__lockup" src="./assets/logo-wordmark.png" alt="Monsoons"
                width="330" height="120" />
         </a>
-        <div class="nav__links">
+        <div class="nav__panel" id="nav-menu">
+          <div class="nav__links">
           <a href="./index.html#how">How it works</a>
           <a href="./index.html#pricing">Packages</a>
           <a href="./index.html#honest">What we won’t promise</a>
           <a href="./about.html">About</a>
           <a class="btn btn--quiet" href="#form">Start audit</a>
         </div>
+      </div>
       </div>
     </nav>
 
@@ -98,11 +100,23 @@
               <input name="contact_name" required autocomplete="name" />
             </label>
           </div>
+          <!-- Split, because one combined field cannot carry a useful
+               autocomplete token or bring up the right keyboard on a phone.
+               Neither is individually required; the script requires one of the
+               two, which is also enforced by a constraint in the database. -->
           <div class="form__row">
             <label class="field">
-              <span class="field__label">Phone or email</span>
-              <input name="contact" required />
+              <span class="field__label">Phone</span>
+              <input name="phone" type="tel" inputmode="tel" autocomplete="tel"
+                     placeholder="480-289-1294" />
             </label>
+            <label class="field">
+              <span class="field__label">Email</span>
+              <input name="email" type="email" autocomplete="email"
+                     placeholder="you@yourshop.com" />
+            </label>
+          </div>
+          <div class="form__row">
             <label class="field">
               <span class="field__label">Website <span style="text-transform: none">(if you have one)</span></span>
               <input name="website" autocomplete="url" />
@@ -123,7 +137,13 @@
           <div>
             <button class="btn" type="submit">Send me my audit</button>
           </div>
-          <p class="msg" id="msg" role="status"></p>
+          <p class="msg" id="msg" role="status" aria-live="polite"></p>
+          <p class="msg">
+            We use what you enter here to run your audit and get back to you. We do
+            not sell it or add you to a mailing list. See our
+            <a href="./privacy.html">privacy page</a>, or ask us to delete it any
+            time at <a href="tel:+14802891294">480-289-1294</a>.
+          </p>
           <p class="msg">
             Rather just talk? Call or text <a href="tel:+14802891294">480-289-1294</a>.
           </p>
@@ -157,6 +177,7 @@
           <a href="./index.html#honest">What we won’t promise</a>
           <a href="./about.html">About</a>
           <a href="./work.html">Work with us</a>
+          <a href="./privacy.html">Privacy</a>
         </nav>
         <div class="footer__contact">
           <p class="footer__eyebrow">Start here</p>
@@ -173,7 +194,6 @@
 
     <script type="module">
       import { mountPlate } from './assets/plate.js?v=2';
-      import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
       // Only mounted wide, where the plate is actually visible beside the form.
       // Below that the CSS hides it, so the source is never fetched at all —
@@ -198,72 +218,109 @@
       const CONFIGURED = !/YOUR-PROJECT|YOUR-ANON-KEY/.test(
         String(SUPABASE.url) + String(SUPABASE.anonKey)
       );
-      const sb = CONFIGURED ? createClient(SUPABASE.url, SUPABASE.anonKey) : null;
+
+      const btn = form.querySelector('button');
+      const val = (f, k) => (f.get(k) || '').trim();
+      const say = (text, bad) => {
+        msg.className = bad ? 'msg msg--bad' : 'msg';
+        msg.textContent = text;
+      };
 
       if (!CONFIGURED) {
-        const btn = form.querySelector('button');
+        // The page is live but the form has nowhere to write. Letting someone fill
+        // eight fields and then fail is the worst outcome, so say so before they
+        // start and turn the button into a prefilled text instead.
         btn.textContent = 'Text us my details';
-        msg.className = 'msg';
-        msg.textContent =
-          'Quickest way right now is a text. Fill this in and the button opens your ' +
-          'messages with it ready to send.';
+        say('Quickest way right now is a text. Fill this in and the button opens ' +
+            'your messages with it ready to send.');
         form.addEventListener('submit', (e) => {
           e.preventDefault();
           const f = new FormData(form);
           if (f.get('nickname')) return;
-          const line = (label, key) => {
-            const v = (f.get(key) || '').trim();
-            return v ? `${label}: ${v}\n` : '';
-          };
-          const body =
+          const line = (label, key) => (val(f, key) ? `${label}: ${val(f, key)}\n` : '');
+          window.location.href = 'sms:+14802891294?&body=' + encodeURIComponent(
             'Free audit request\n' +
-            line('Business', 'business_name') +
-            line('What we do', 'vertical') +
-            line('City', 'city') +
-            line('Name', 'contact_name') +
-            line('Reach me at', 'contact') +
-            line('Website', 'website') +
-            line('People ask for', 'notes');
-          window.location.href =
-            'sms:+14802891294?&body=' + encodeURIComponent(body);
+            line('Business', 'business_name') + line('What we do', 'vertical') +
+            line('City', 'city') + line('Name', 'contact_name') +
+            line('Phone', 'phone') + line('Email', 'email') +
+            line('Website', 'website') + line('People ask for', 'notes'));
         });
       } else {
+        let sending = false;
 
-      form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const f = new FormData(form);
-        if (f.get('nickname')) return; // bot tripped the honeypot
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          if (sending) return;                     // no duplicate submissions
+          const f = new FormData(form);
+          if (f.get('nickname')) return;           // bot tripped the honeypot
 
-        const btn = form.querySelector('button');
-        btn.disabled = true;
-        msg.className = 'msg';
-        msg.textContent = 'Sending…';
+          // Phone and email are each optional, but one is required. Enforced here
+          // for the message, and by a constraint in the database for real.
+          const phone = val(f, 'phone'), email = val(f, 'email');
+          if (!phone && !email) {
+            say('Add a phone number or an email so we can send you the results.', true);
+            form.querySelector('[name="phone"]').focus();
+            return;
+          }
 
-        const { error } = await sb.from('intake_submissions').insert({
-          business_name: f.get('business_name').trim(),
-          vertical: f.get('vertical').trim(),
-          city: f.get('city').trim(),
-          contact_name: f.get('contact_name').trim(),
-          contact: f.get('contact').trim(),
-          website: f.get('website').trim() || null,
-          notes: f.get('notes').trim() || null,
+          sending = true;
+          btn.disabled = true;
+          say('Sending…');
+
+          // A direct REST insert rather than the Supabase browser SDK. The SDK
+          // entry point pulls in auth, realtime, storage, functions and a process
+          // shim from a third-party CDN — a large dependency, and an extra origin
+          // on the critical path of the one page that has to convert, to do a
+          // single POST. This is exactly what the SDK would have sent.
+          let ok = false, detail = '';
+          try {
+            const res = await fetch(
+              `${SUPABASE.url}/rest/v1/intake_submissions`,
+              {
+                method: 'POST',
+                headers: {
+                  apikey: SUPABASE.anonKey,
+                  Authorization: `Bearer ${SUPABASE.anonKey}`,
+                  'Content-Type': 'application/json',
+                  Prefer: 'return=minimal',
+                },
+                body: JSON.stringify({
+                  business_name: val(f, 'business_name'),
+                  vertical: val(f, 'vertical') || null,
+                  city: val(f, 'city') || null,
+                  contact_name: val(f, 'contact_name') || null,
+                  phone: phone || null,
+                  email: email || null,
+                  website: val(f, 'website') || null,
+                  notes: val(f, 'notes') || null,
+                }),
+              }
+            );
+            ok = res.ok;
+            if (!ok) detail = `${res.status}`;
+          } catch (err) {
+            detail = 'offline';                    // network down, DNS, blocked
+          }
+
+          if (!ok) {
+            sending = false;
+            btn.disabled = false;
+            say(detail === 'offline'
+              ? 'That did not send — looks like the connection dropped. Try again, ' +
+                'or text us at 480-289-1294.'
+              : 'That did not go through. Try again, or text us at 480-289-1294.',
+              true);
+            return;
+          }
+
+          // Only now, once the database has confirmed it.
+          form.innerHTML =
+            '<h2>Got it.</h2><p class="lede">We will run your questions and get ' +
+            'back to you within two business days with the screenshots.</p>';
         });
-
-        if (error) {
-          console.error(error);
-          msg.className = 'msg msg--bad';
-          msg.textContent = 'That did not go through. Try again, or just text us.';
-          btn.disabled = false;
-          return;
-        }
-
-        form.innerHTML =
-          '<h2>Got it.</h2><p class="lede">We will run your questions and get back to' +
-          ' you within two business days with the screenshots.</p>';
-      });
-
-      } // end CONFIGURED branch
+      }
     </script>
+    <script type="module" src="./assets/nav.js?v=2"></script>
     <script type="module" src="./assets/logo-resolve.js?v=2"></script>
   </body>
 </html>

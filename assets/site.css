@@ -49,6 +49,15 @@
   --verdigris: #3a7062;
   /* On indigo. Measured 6.19:1, no change needed. */
   --verdigris-lt: #6aab98;
+  /* Small verdigris text on a light ground only. Darkening the shared accent far
+     enough to carry 12px type would drag the fills and the large display accent
+     down with it, and the display accent has the opposite problem — it sits on
+     indigo and needs to be lighter, not darker. Three tokens, one per ground and
+     size class, is the honest shape of this:
+       --verdigris      fills, borders, large text on light
+       --verdigris-lt   anything on indigo
+       --verdigris-text small text on light  (5.24:1 on paper, 4.80:1 on tint) */
+  --verdigris-text: #34655a;
   --line: #ddd8ce;
   --line-dk: #2c3a49;
 
@@ -157,6 +166,16 @@ strong, b { font-weight: 700; }
 }
 .lede { font-size: var(--t-md); line-height: 1.5; color: var(--ink-2); max-width: 46ch; }
 em.mark { font-style: italic; color: var(--verdigris); }
+/* The accent line in the hero sits on indigo, where the light variant is the
+   correct one. It had been using the shared accent, which measured 2.88:1 against
+   a 3:1 requirement for large text — on the single most important line on the
+   site. Darkening the shared token for small-text contrast made that worse, which
+   is what forced the three-token split above. */
+.hero em.mark,
+.page-hero em.mark,
+.section--dark em.mark,
+.plate em.mark,
+.band em.mark { color: var(--verdigris-lt); }
 
 /* ---------- nav ---------- */
 
@@ -272,6 +291,106 @@ em.mark { font-style: italic; color: var(--verdigris); }
 /* The image only hides while the canvas is actually painting it. */
 .markfx--running > .nav__lockup { visibility: hidden; }
 .nav__links { display: flex; gap: 1rem; margin-left: auto; align-items: center; flex-wrap: wrap; }
+
+/* ---------- mobile navigation ----------
+
+   Below 860px the links did not fit, so they were simply hidden and the only
+   reachable destination in the header was the CTA. Everything else was a 10,000px
+   scroll to the footer. This is a real menu: a 44px trigger, aria-expanded and
+   aria-controls, Escape and outside-click to close, and focus returned to the
+   trigger on close.
+
+   The panel is deliberately plain — a list on the same glass as the bar. The
+   header is not somewhere to spend another animated surface. */
+.nav__toggle { display: none; }
+.nav__panel { display: contents; }
+
+@media (max-width: 860px) {
+  .nav__toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-left: auto;
+    min-height: 44px;
+    min-width: 44px;
+    padding: 0 0.7rem;
+    border: 1px solid rgba(63, 122, 107, 0.4);
+    border-radius: 999px;
+    background: rgba(63, 122, 107, 0.07);
+    color: var(--verdigris-text);
+    font-family: var(--body);
+    font-size: 0.72rem;
+    font-weight: 760;
+    letter-spacing: 0.045em;
+    cursor: pointer;
+  }
+  .nav__burger { display: block; width: 15px; height: 9px; position: relative; }
+  .nav__burger::before,
+  .nav__burger::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0;
+    height: 1.5px;
+    background: currentColor;
+    transition: transform 0.16s ease-out, opacity 0.16s ease-out;
+  }
+  .nav__burger::before { top: 0; }
+  .nav__burger::after { bottom: 0; }
+  [aria-expanded='true'] .nav__burger::before { transform: translateY(3.75px) rotate(45deg); }
+  [aria-expanded='true'] .nav__burger::after { transform: translateY(-3.75px) rotate(-45deg); }
+
+  /* The panel drops below the pill rather than covering the page, so the CTA in
+     the bar stays visible and reachable while it is open. */
+  .nav__panel {
+    display: block;
+    position: absolute;
+    top: calc(100% + 0.45rem);
+    left: 0; right: 0;
+    padding: 0.4rem;
+    border-radius: 1.25rem;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.93), rgba(246,244,239,0.9));
+    backdrop-filter: blur(20px) saturate(150%);
+    -webkit-backdrop-filter: blur(20px) saturate(150%);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 18px 44px -16px rgba(22, 32, 43, 0.4);
+  }
+  .nav__panel[hidden] { display: none; }
+  .nav__inner { position: relative; }
+  .nav__links {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    margin-left: 0;
+    flex-wrap: nowrap;
+  }
+  .nav__links a {
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    padding: 0 0.85rem;
+    font-size: 0.95rem;
+    border-radius: 0.9rem;
+  }
+  /* The animated underline is a hover affordance and there is no hover here. */
+  .nav__links a::after { content: none; }
+  .nav__links a:active { background: rgba(63, 122, 107, 0.09); }
+  /* The CTA lives in the bar on mobile, not in the panel. */
+  .nav__links .btn { display: none; }
+  .nav__cta { display: inline-flex; margin-left: 0.5rem; }
+}
+
+/* Above the breakpoint the trigger and the duplicate CTA are irrelevant.
+   Scoped to .nav__inner > for specificity: a bare .nav__cta ties with .btn, and
+   .btn is defined later in this file, so the clone stayed visible and the desktop
+   bar showed the same button twice. */
+@media (min-width: 861px) {
+  .nav__inner > .nav__cta { display: none; }
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .nav__panel { background: var(--paper); }
+}
 .nav__links a {
   font-size: 0.78rem; font-weight: 650; color: var(--ink-2); text-decoration: none;
   letter-spacing: 0.015em;
@@ -362,7 +481,9 @@ em.mark { font-style: italic; color: var(--verdigris); }
 .btn--quiet {
   background: rgba(63, 122, 107, 0.07);
   border-color: rgba(63, 122, 107, 0.4);
-  color: var(--verdigris);
+  /* 12px label on a light ground, and the tinted fill behind it drops the
+     effective ratio further, so this needs the text token rather than the accent. */
+  color: var(--verdigris-text);
   box-shadow: none;
 }
 .btn--quiet::before { box-shadow: 0 10px 22px rgba(63, 122, 107, 0.18); }
@@ -1166,18 +1287,32 @@ details p { margin: 0 0 1.15rem; font-size: var(--t-sm); color: var(--slate); }
    actually are: on a phone, in a truck, between jobs.
    ============================================================ */
 
+/* The three footer columns declare minimums of 18rem + 9rem + 15rem, which with
+   its gaps needs about 764px — so between 721px and 900px the grid was wider than
+   the viewport and the page scrolled sideways. Neither the audit nor I had checked
+   768px, which is exactly where it showed. Two columns with the brand spanning,
+   until the 720px rule below takes it to one. */
+@media (max-width: 900px) {
+  .footer__inner {
+    grid-template-columns: 1fr 1fr;
+    gap: 2.2rem 2.5rem;
+  }
+  .footer__brand { grid-column: 1 / -1; }
+}
+
 @media (max-width: 720px) {
-  /* The nav was wrapping to two rows and eating 22% of the viewport before
-     the hero even started. On a single-scroll page the section anchors are
-     not load-bearing, and they all exist in the footer, so mobile keeps the
-     logo and the one action that matters. */
+  /* The nav was wrapping to two rows and eating 22% of the viewport before the
+     hero even started, and the fix at the time was to hide every link except the
+     CTA. That left the header with exactly one destination and put everything
+     else behind a scroll of up to 10,400px to the footer.
+     Those links now live in the menu panel defined near the top of this file, so
+     the rules that hid them are gone. Do not reintroduce
+     `.nav__links a:not(.btn) { display: none }` — it silently emptied the menu,
+     because it sits later in the file than the panel rules and wins. */
   .nav { padding-inline: var(--pad); }
   .nav__inner { min-height: 66px; gap: 0.75rem; }
-  .nav__links a:not(.btn) { display: none; }
-  .nav__links { gap: 0; }
 
   /* 44px minimum tap target. Anything smaller is a coin flip with a thumb. */
-  .nav__links .btn { min-height: 44px; display: inline-flex; align-items: center; padding: 0.5rem 0.95rem; }
   .btn { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
 
   /* Hero was pushing its text 58% down the screen. */
@@ -1330,13 +1465,14 @@ details p { margin: 0 0 1.15rem; font-size: var(--t-sm); color: var(--slate); }
   font-size: var(--t-sm);
 }
 
-/* The one line that carries the whole section. */
+/* The one line that carries the whole section. Small bold text on the tinted
+   after-panel, so it takes the text token: the accent measured 4.31:1 here. */
 .answer__list .is-you {
   font-weight: 700;
-  color: var(--verdigris);
+  color: var(--verdigris-text);
 }
 .answer__list .is-you::before {
-  color: var(--verdigris);
+  color: var(--verdigris-text);
   font-weight: 700;
 }
 
@@ -1358,7 +1494,8 @@ details p { margin: 0 0 1.15rem; font-size: var(--t-sm); color: var(--slate); }
   padding-left: var(--s4);
   padding-right: var(--s4);
 }
-.answer--after .answer__state { color: var(--verdigris); }
+/* Tracked 11.5px caps on the tinted panel — the smallest verdigris text here. */
+.answer--after .answer__state { color: var(--verdigris-text); }
 .answer--after .answer__you { color: var(--ink-2); font-style: normal; }
 
 .ba__note {

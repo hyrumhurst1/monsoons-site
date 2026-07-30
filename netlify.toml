@@ -11,6 +11,13 @@
     X-Content-Type-Options = "nosniff"
     X-Frame-Options = "SAMEORIGIN"
     Referrer-Policy = "strict-origin-when-cross-origin"
+    # Added only after the certificate was confirmed good: apex serves 200 over
+    # HTTPS with ssl_verify=0, http 301s to https, and www redirects to apex.
+    # HSTS on a broken certificate locks visitors out of the site for a year,
+    # which is why this line was held back until then.
+    # Deliberately no `preload`: that is effectively irreversible, and this is a
+    # young domain that may still need to move.
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains"
 
 ## Caching. The rule that matters: a long max-age is only safe when the filename
 ## changes whenever the bytes do. There is no build step here, so nothing is
