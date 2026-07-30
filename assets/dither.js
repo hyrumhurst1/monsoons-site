@@ -27,11 +27,35 @@ function cellNoise(x, y) {
   return ((h ^ (h >>> 16)) >>> 0) / 4294967295;
 }
 
-const hexRgb = (h) => ({
-  r: parseInt(h.slice(1, 3), 16),
-  g: parseInt(h.slice(3, 5), 16),
-  b: parseInt(h.slice(5, 7), 16),
-});
+/**
+ * Any CSS colour a caller is likely to hand us: #abc, #aabbcc, or the
+ * rgb()/rgba() form that getComputedStyle always returns.
+ *
+ * This used to accept hex only, and the failure was nasty enough to be worth
+ * recording. Passing a computed "rgb(28, 26, 23)" made slice(1,3) parse as NaN,
+ * so fillStyle became "rgba(NaN,NaN,8,0.8)". Canvas silently ignores an invalid
+ * fillStyle and keeps the previous one, which here was the ground colour — so
+ * every dot painted in the ground and the plate looked blank with no console
+ * error and no exception to catch.
+ */
+function toRgb(c) {
+  const fallback = { r: 232, g: 228, b: 218 };
+  if (typeof c !== 'string') return fallback;
+  const s = c.trim();
+  if (s[0] === '#') {
+    const h =
+      s.length === 4 ? `#${s[1]}${s[1]}${s[2]}${s[2]}${s[3]}${s[3]}` : s;
+    const v = {
+      r: parseInt(h.slice(1, 3), 16),
+      g: parseInt(h.slice(3, 5), 16),
+      b: parseInt(h.slice(5, 7), 16),
+    };
+    return Number.isNaN(v.r + v.g + v.b) ? fallback : v;
+  }
+  const m = s.match(/-?\d*\.?\d+/g);
+  if (m && m.length >= 3) return { r: +m[0], g: +m[1], b: +m[2] };
+  return fallback;
+}
 
 export const DEFAULTS = {
   pixelSize: 8,
@@ -39,15 +63,46 @@ export const DEFAULTS = {
   dotScale: 0.82,
   levels: 5,
   whiteClip: 0.16,   // clip the top N of the histogram — see note below
+  // Auto-levels stretches the plate's real tonal range to fill the dot range,
+  // which is right for photographs. Text and the logo are already pure ink on
+  // pure ground, so stretching a two-spike histogram just eats the antialiased
+  // edge and the glyphs come back jagged. Those sources set this false.
+  autoLevels: true,
   contrast: 14,
   brightness: 6,
   floor: 0.008,
   ink: '#e8e4da',
   ground: '#16202b',
+  // Composite the dots over whatever is behind the canvas instead of over an
+  // opaque ground. Needed wherever the canvas is larger than the thing it draws
+  // — dithered text has to bleed past its line box to catch descenders, and an
+  // opaque ground would paint that bleed over the neighbouring elements.
+  transparent: false,
   shape: 'dot',
   fit: 'contain',   // 'contain' shows the whole plate, 'cover' fills the box
+  // Backing-store multiplier. A plate is large enough that one device pixel per
+  // CSS pixel gives plenty of cells, but a 38px-tall heading only yields nine
+  // dot rows across its cap height at that density, which renders as sub-pixel
+  // mush. Oversampling buys cells without making the dots coarser on screen.
+  density: 1,
   leanRadius: 0.6,   // pointer field radius as a fraction of canvas width
   leanStrength: 7,   // cells of horizontal displacement at full strength
+
+  // Per-cell positional jitter in pixels, on a stable per-cell angle. Animating
+  // this to 0 is what makes a plate look like it assembles itself out of loose
+  // dots. Distinct from `smooth`, which jitters the threshold rather than the
+  // position, so it changes which dots exist rather than where they sit.
+  scatter: 0,
+
+  // A minority of cells painted in a second colour and allowed to drift, so the
+  // field reads as alive rather than as a static screen. The set of cells is
+  // chosen by a stable hash and never changes: picking new cells every frame
+  // makes the whole plate flicker, whereas holding the set and moving only the
+  // positions reads as motion.
+  altInk: null,      // null disables. Any CSS colour.
+  altRate: 0.06,     // fraction of cells promoted to altInk
+  altDrift: 1.6,     // px of travel, peak to peak
+  altSpeed: 0.012,   // phase advance per frame
 
   // Travelling crest, like a wave through a crowd. Dots swell and lift as it
   // passes, then settle. Off by default.
@@ -78,15 +133,21 @@ export const DEFAULTS = {
   gamma: 0.85,
 };
 
-/** Natural size and readiness for either an <img> or a <video>. */
-const srcW = (s) => s.videoWidth ?? s.naturalWidth ?? 0;
-const srcH = (s) => s.videoHeight ?? s.naturalHeight ?? 0;
-const srcReady = (s) =>
-  s.tagName === 'IMG' ? s.complete && s.naturalWidth > 0 : s.readyState >= 2;
+// Natural size and readiness for a <video>, an <img>, or a <canvas>.
+// Canvas is here so text and the logo can be dithered: both are drawn to an
+// offscreen canvas first, then fed through this engine like any other plate.
+// Order matters — a <video> also has .width, so videoWidth has to win.
+const srcW = (s) => s.videoWidth ?? s.naturalWidth ?? s.width ?? 0;
+const srcH = (s) => s.videoHeight ?? s.naturalHeight ?? s.height ?? 0;
+const srcReady = (s) => {
+  if (s.tagName === 'CANVAS') return s.width > 0 && s.height > 0;
+  if (s.tagName === 'IMG') return s.complete && s.naturalWidth > 0;
+  return s.readyState >= 2;
+};
 
 export function initDither(canvas, video, options = {}) {
   let P = { ...DEFAULTS, ...options };
-  const ctx = canvas.getContext('2d', { alpha: false });
+  const ctx = canvas.getContext('2d', { alpha: !!P.transparent });
   const buf = document.createElement('canvas');
   const bctx = buf.getContext('2d', { willReadFrequently: true });
   // Reveal mode paints the dither into its own layer, then masks that layer to
@@ -95,8 +156,8 @@ export function initDither(canvas, video, options = {}) {
   const dctx = dl.getContext('2d');
   let reveal = 0; // eased 0..1 so it fades in and out instead of snapping
 
-  let cols = 0, rows = 0, pinned = null, raf = 0, stopped = false;
-  let wavePhase = 0;
+  let cols = 0, rows = 0, pinned = null, raf = 0, stopped = false, running = true;
+  let wavePhase = 0, altPhase = 0;
   let prevLum = null;   // previous frame's luminance, for temporal easing
   const ptr = { x: -1e5, y: -1e5, active: false };
   const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -111,9 +172,13 @@ export function initDither(canvas, video, options = {}) {
 
   function size() {
     const rect = canvas.parentElement.getBoundingClientRect();
-    const dpr = Math.min(devicePixelRatio || 1, 1.5);
-    canvas.width = Math.max(240, Math.floor(rect.width * dpr));
-    canvas.height = Math.max(200, Math.floor(rect.height * dpr));
+    const dpr = Math.min(devicePixelRatio || 1, 1.5) * (P.density || 1);
+    // Floor at 8, not at plate dimensions. This only exists to keep the canvas
+    // from being zero-sized mid-layout; a large floor silently stretches any
+    // source smaller than it, which is what squashed the dithered headings 5x
+    // vertically when they were 39px tall and the floor was 200.
+    canvas.width = Math.max(8, Math.floor(rect.width * dpr));
+    canvas.height = Math.max(8, Math.floor(rect.height * dpr));
     pinned = null;
   }
   const ro = new ResizeObserver(size);
@@ -127,6 +192,7 @@ export function initDither(canvas, video, options = {}) {
   // top slice deliberately: on a night plate the moon is a tiny bright
   // outlier, and letting it set white crushes the rain into black.
   function pin(lum) {
+    if (!P.autoLevels) { pinned = { lo: 0, hi: 1 }; return; }
     const hist = new Uint32Array(256);
     for (let i = 0; i < lum.length; i++) hist[(lum[i] * 255) | 0]++;
     const total = lum.length;
@@ -137,8 +203,7 @@ export function initDither(canvas, video, options = {}) {
     pinned = { lo: lo / 255, hi: Math.max(hi / 255, lo / 255 + 0.05) };
   }
 
-  function frame() {
-    if (stopped) return;
+  function draw() {
     if (srcReady(video) && canvas.width) {
       const cell = P.pixelSize;
       const cw = Math.ceil(canvas.width / cell);
@@ -185,7 +250,10 @@ export function initDither(canvas, video, options = {}) {
       const c = 1 + P.contrast / 50;
       const b = P.brightness / 100;
       const L = Math.max(2, P.levels);
-      const ink = hexRgb(P.ink);
+      const ink = toRgb(P.ink);
+      const altOn = !!P.altInk && P.altRate > 0 && !reduceMotion;
+      const alt = altOn ? toRgb(P.altInk) : ink;
+      if (altOn) altPhase += P.altSpeed;
       const rMax = (cell * (1 - P.spacing) / 2) * P.dotScale;
       const R = canvas.width * P.leanRadius;
 
@@ -209,7 +277,7 @@ export function initDither(canvas, video, options = {}) {
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         const m = fitRect(canvas.width, canvas.height);
         ctx.drawImage(video, m.sx, m.sy, m.sw, m.sh, m.dx, m.dy, m.dw, m.dh);
-        if (reveal === 0) { raf = requestAnimationFrame(frame); return; }
+        if (reveal === 0) return;
         if (dl.width !== canvas.width || dl.height !== canvas.height) {
           dl.width = canvas.width; dl.height = canvas.height;
         }
@@ -218,6 +286,8 @@ export function initDither(canvas, video, options = {}) {
         dctx.fillStyle = P.ground;
         dctx.fillRect(0, 0, dl.width, dl.height);
         g = dctx;
+      } else if (P.transparent) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
       } else {
         ctx.fillStyle = P.ground;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -270,6 +340,25 @@ export function initDither(canvas, video, options = {}) {
 
           let dx2 = cx, dy2 = cy, r = rMax * tone;
 
+          const isAlt = altOn && cellNoise(x + 1301, y + 7919) < P.altRate;
+          if (isAlt && P.altDrift > 0) {
+            // Each drifting cell gets its own phase offset, so they wander
+            // independently instead of sliding as one block.
+            const ph = altPhase + cellNoise(x + 53, y + 131) * 6.2832;
+            dx2 += Math.cos(ph) * P.altDrift;
+            dy2 += Math.sin(ph * 0.73) * P.altDrift * 0.7;
+          }
+
+          if (P.scatter > 0) {
+            // Second hash on a shifted coordinate so the angle is independent of
+            // the threshold noise; reusing one hash makes the scatter correlate
+            // with which dots survive and the field visibly streaks.
+            const a = cellNoise(x + 811, y + 419) * 6.2832;
+            const m = P.scatter * (0.35 + 0.65 * cellNoise(y + 233, x + 977));
+            dx2 += Math.cos(a) * m;
+            dy2 += Math.sin(a) * m;
+          }
+
           if (P.wave && !reduceMotion) {
             // Distance from this cell to the crest, slanted so the wave sweeps
             // diagonally instead of advancing as a flat wall.
@@ -285,7 +374,9 @@ export function initDither(canvas, video, options = {}) {
             }
           }
 
-          const key = tone.toFixed(2);
+          // Batched by colour and tone so the whole field is a handful of fills
+          // rather than one per dot. The leading flag keeps the two inks apart.
+          const key = (isAlt ? 'a' : 'n') + tone.toFixed(2);
           let arr = buckets.get(key);
           if (!arr) buckets.set(key, (arr = []));
           arr.push(dx2, dy2, r);
@@ -293,7 +384,8 @@ export function initDither(canvas, video, options = {}) {
       }
 
       for (const [key, arr] of buckets) {
-        g.fillStyle = `rgba(${ink.r},${ink.g},${ink.b},${key})`;
+        const col = key[0] === 'a' ? alt : ink;
+        g.fillStyle = `rgba(${col.r},${col.g},${col.b},${key.slice(1)})`;
         g.beginPath();
         for (let i = 0; i < arr.length; i += 3) {
           const r = arr[i + 2];
@@ -316,6 +408,11 @@ export function initDither(canvas, video, options = {}) {
         ctx.drawImage(dl, 0, 0);
       }
     }
+  }
+
+  function frame() {
+    if (stopped || !running) return;
+    draw();
     raf = requestAnimationFrame(frame);
   }
 
@@ -345,6 +442,14 @@ export function initDither(canvas, video, options = {}) {
 
   return {
     setOpts(next) { P = { ...P, ...next }; pinned = null; },
-    stop() { stopped = true; cancelAnimationFrame(raf); ro.disconnect(); },
+    // Dithered text and the nav mark are static once they have resolved, so they
+    // pause instead of holding a render loop open forever. Six idle rAF loops on
+    // one page is how a site with one motion moment ends up feeling busy.
+    pause() { running = false; cancelAnimationFrame(raf); },
+    resume() { if (stopped || running) return; running = true; frame(); },
+    /** Draw exactly one frame, whether or not the loop is running. */
+    step() { if (!stopped) draw(); },
+    get running() { return running; },
+    stop() { stopped = true; running = false; cancelAnimationFrame(raf); ro.disconnect(); },
   };
 }

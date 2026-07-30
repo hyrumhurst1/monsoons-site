@@ -213,6 +213,22 @@
       </div>
     </section>
 
+    <section class="plate plate--saguaro">
+      <canvas id="saguaroPlate" aria-hidden="true"></canvas>
+      <img id="saguaroSrc" src="./media/saguaro-forest-web.jpg" alt="" />
+      <div class="plate__inner">
+        <div class="head">
+          <p class="label">The long view</p>
+          <h2>A saguaro does not grow an arm until it is sixty</h2>
+        </div>
+        <p class="lede">
+          Nothing out here got established quickly. The stuff that lasts in this
+          valley took its time, and the coverage we build for you works the same
+          way: the spike is fast, the record is slow.
+        </p>
+      </div>
+    </section>
+
     <section class="section section--tint">
       <div class="wrap prose">
         <div class="head">
@@ -334,6 +350,39 @@
 
       if (im.complete && im.naturalWidth) start();
       else im.addEventListener('load', start, { once: true });
+
+      // Saguaro forest. Hundreds of separate silhouettes receding into haze, which
+      // is exactly what the dither wants: discrete elements at varying depth.
+      // Deliberately still — the grove plate above already carries a crest, and
+      // two travelling waves on one page compete with each other. Interaction
+      // here comes from the pointer instead.
+      const sg = document.getElementById('saguaroPlate');
+      const sgImg = document.getElementById('saguaroSrc');
+      if (sg && sgImg) {
+        let started = false;
+        const startSaguaro = () => {
+          if (started || !sgImg.naturalWidth) return;
+          started = true;
+          initDither(sg, sgImg, {
+            fit: 'cover',
+            pixelSize: narrow ? 4 : 3,
+            whiteClip: 0.14,
+            brightness: 6,
+            contrast: 16,
+            levels: 8,
+            leanRadius: 0.42,
+            leanStrength: 6,
+          });
+        };
+        // Below the fold, so decode only once it is near. Guarding on
+        // naturalWidth as well means a cached image that is already complete
+        // still starts when the observer fires.
+        new IntersectionObserver((entries, obs) => {
+          if (!entries.some((e) => e.isIntersecting)) return;
+          if (sgImg.complete) { startSaguaro(); obs.disconnect(); }
+          else sgImg.addEventListener('load', startSaguaro, { once: true });
+        }, { rootMargin: '300px' }).observe(sg);
+      }
     </script>
   </body>
 </html>

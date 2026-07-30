@@ -136,22 +136,85 @@ em.mark { font-style: italic; color: var(--verdigris); }
 
 /* ---------- nav ---------- */
 
+/* A floating glass bar rather than a full-width band welded to the top. The bar
+   is the sticky element and the glass lives on .nav__inner, so the pill has real
+   edges on all four sides and the page visibly runs underneath it.
+
+   The two-layer background is what makes it read as glass instead of as a flat
+   translucent rectangle: a soft vertical wash for body, plus a hairline
+   top-inset highlight for the lit edge. A single flat rgba() with a blur behind
+   it reads as frosted plastic. */
 .nav {
-  position: sticky; top: 0; z-index: 20;
-  padding: 0 var(--pad);
-  background: rgba(246, 244, 239, 0.94);
-  backdrop-filter: blur(18px) saturate(120%);
-  border-bottom: 1px solid rgba(28, 26, 23, 0.1);
-  box-shadow: 0 10px 32px rgba(22, 32, 43, 0.04);
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  padding: 0.7rem var(--pad);
+  /* No background or border on the bar itself: the glass is the pill inside it,
+     and a band here would cancel the floating effect. */
+  background: transparent;
+  pointer-events: none;   /* let clicks through the gutter beside the pill */
 }
 .nav__inner {
   width: 100%;
   max-width: 68rem;
-  min-height: 76px;
+  min-height: 66px;
   margin: 0 auto;
+  padding: 0 0.55rem 0 0.85rem;
   display: flex;
   align-items: center;
   gap: 1.75rem;
+  pointer-events: auto;   /* ...but the pill is still interactive */
+  border-radius: 999px;
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.72),
+      rgba(246, 244, 239, 0.58)
+    );
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.7) inset,
+    0 10px 30px -12px rgba(22, 32, 43, 0.28),
+    0 2px 8px -4px rgba(22, 32, 43, 0.14);
+  transition: box-shadow 0.25s var(--ease), background-color 0.25s var(--ease);
+}
+/* The bar sits deeper once the page has moved. Driven by a scroll timeline
+   rather than a scroll listener, so there is no JS on any of the five pages and
+   nothing to keep in sync; where scroll timelines are unsupported the bar simply
+   keeps its resting shadow, which is a complete look on its own. Shadow only —
+   animating size here would reflow the whole page on every scroll frame. */
+@supports (animation-timeline: scroll()) {
+  @keyframes nav-lift {
+    to {
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.7) inset,
+        0 16px 40px -14px rgba(22, 32, 43, 0.38),
+        0 3px 10px -4px rgba(22, 32, 43, 0.18);
+      border-color: rgba(255, 255, 255, 0.75);
+    }
+  }
+  .nav__inner {
+    animation: nav-lift linear both;
+    animation-timeline: scroll(root block);
+    animation-range: 0 140px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .nav__inner { animation: none; }
+  }
+}
+
+/* On the home page the bar floats over the hero instead of resting above it.
+   Safe here specifically because the hero's copy is bottom-aligned, so there is
+   nothing at the top of the hero for the pill to cover. Every other page opens
+   with a heading at the top of its first section, so those keep the bar in flow
+   rather than dropping it on top of their h1. */
+.nav + .hero { margin-top: calc(-1 * (66px + 1.4rem)); }
+/* Where backdrop-filter is unavailable the translucent fill would let text
+   collide with whatever scrolls under it, so those browsers get an opaque pill. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .nav__inner { background: var(--paper); border-color: rgba(28, 26, 23, 0.12); }
 }
 .nav__brand {
   text-decoration: none; color: var(--ink);
@@ -199,7 +262,15 @@ em.mark { font-style: italic; color: var(--verdigris); }
 
 /* ---------- buttons ---------- */
 
+/* One block, and it transitions only compositor-friendly properties.
+   This previously animated box-shadow, which forces the browser to re-rasterise
+   a large blurred region on every frame of every hover — the usual reason a
+   button feels laggy rather than snappy. The lift shadow now lives on a ::before
+   layer whose opacity is faded instead, and opacity and transform are both
+   handled on the compositor. */
 .btn {
+  position: relative;
+  isolation: isolate;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -217,38 +288,79 @@ em.mark { font-style: italic; color: var(--verdigris); }
   text-decoration: none;
   cursor: pointer;
   box-shadow: 0 9px 24px rgba(63, 122, 107, 0.18), inset 0 1px rgba(255, 255, 255, 0.16);
+  /* Faster in than the old 0.18s, and a near-linear curve. The old ease had a
+     long tail, which is what made the hover-out feel like it was dragging. */
+  transition:
+    background-color 0.13s ease-out,
+    border-color 0.13s ease-out,
+    color 0.13s ease-out,
+    transform 0.13s ease-out;
+}
+.btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  box-shadow: 0 13px 30px rgba(63, 122, 107, 0.3);
+  opacity: 0;
+  transition: opacity 0.13s ease-out;
 }
 .btn::after {
   content: '→';
   font-size: 1.08em;
   line-height: 1;
-  transition: transform 0.18s var(--ease);
-}
-.btn {
-  transition: background-color 0.18s var(--ease), border-color 0.18s var(--ease),
-              color 0.18s var(--ease), transform 0.18s var(--ease), box-shadow 0.18s var(--ease);
+  transition: transform 0.13s ease-out;
 }
 .btn:hover {
   background: #34655a;
   border-color: #34655a;
   transform: translateY(-2px);
-  box-shadow: 0 13px 30px rgba(63, 122, 107, 0.25), inset 0 1px rgba(255, 255, 255, 0.2);
 }
+.btn:hover::before { opacity: 1; }
 .btn:hover::after { transform: translateX(3px); }
-.btn:active { transform: translateY(0); }
+/* Press reads as a press: settle back down and drop the lift shadow. */
+.btn:active { transform: translateY(0); transition-duration: 0.04s; }
+.btn:active::before { opacity: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .btn, .btn::before, .btn::after { transition: none; }
+  .btn:hover { transform: none; }
+  .btn:hover::after { transform: none; }
+}
+
+/* Quiet variant. The fill was 4% alpha, which on paper is invisible and on the
+   glass nav read as nothing at all, so the primary CTA in the bar did not look
+   like a button. Now it carries a real border and a legible fill. */
 .btn--quiet {
-  background: rgba(63, 122, 107, 0.04);
+  background: rgba(63, 122, 107, 0.07);
+  border-color: rgba(63, 122, 107, 0.4);
   color: var(--verdigris);
   box-shadow: none;
 }
-.btn--quiet:hover { background: rgba(63, 122, 107, 0.11); color: #34655a; box-shadow: none; }
+.btn--quiet::before { box-shadow: 0 10px 22px rgba(63, 122, 107, 0.18); }
+.btn--quiet:hover {
+  background: var(--verdigris);
+  border-color: var(--verdigris);
+  color: #fff;
+}
 .btn--onDark {
   background: var(--bone);
   border-color: var(--bone);
   color: var(--indigo);
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18), inset 0 1px rgba(255, 255, 255, 0.4);
 }
+.btn--onDark::before { box-shadow: 0 16px 34px rgba(0, 0, 0, 0.3); }
 .btn--onDark:hover { background: #fff; border-color: #fff; color: var(--indigo); }
+
+/* Nav buttons sit on glass and in a 66px bar, so they run tighter than a
+   body-copy CTA and drop the arrow, which at this size just adds noise. */
+.nav .btn {
+  min-height: 40px;
+  padding: 0.5rem 1rem;
+  font-size: 0.72rem;
+}
+.nav .btn::after { content: none; }
 /* One focus treatment for the whole site. The audit form had its own ring at a
    different colour and offset, so tabbing into it visibly changed the ring. */
 :where(a, button, input, select, textarea, summary):focus-visible {
@@ -336,13 +448,23 @@ em.mark { font-style: italic; color: var(--verdigris); }
    otherwise out-specify a plain `.dtext__c` at (0,1,0) and reposition the
    overlay if one of these ever lands inside a plate. */
 .dtext { position: relative; }
-.dtext > .dtext__c {
-  position: absolute; inset: 0; width: 100%; height: 100%;
-  display: block; pointer-events: none;
+/* The dot field bleeds past the line box top and bottom. Descenders render
+   outside a line box by design, so a canvas clipped to that box shears the
+   bottom off every 'y', 'p' and 'g'. The em-relative inset keeps the bleed
+   proportional to the heading, which matters because h2 is a clamp(). */
+.dtext > .dtext__bleed {
+  position: absolute;
+  left: 0; right: 0;
+  top: -0.34em; bottom: -0.34em;
+  display: block;
+  pointer-events: none;
+}
+.dtext > .dtext__bleed > .dtext__c {
+  position: absolute; inset: 0; width: 100%; height: 100%; display: block;
 }
 .dtext--on > .dtext__t { color: transparent; }
 /* Only claim the pointer once the dots are actually the visible layer. */
-.dtext--on > .dtext__c { pointer-events: auto; }
+.dtext--on > .dtext__bleed { pointer-events: auto; }
 
 .hero::after {
   content: ''; position: absolute; inset: 0; pointer-events: none;
@@ -782,6 +904,27 @@ details p { margin-top: 0.6rem; font-size: var(--t-sm); color: var(--slate); }
   background: linear-gradient(to top, rgba(22,32,43,0.93) 0%, rgba(22,32,43,0.55) 40%, transparent 76%);
 }
 
+/* Saguaro forest. Taller than the grove because the subject is vertical, and the
+   scrim runs from the left rather than the bottom so the copy sits against the
+   dense side of the field instead of washing out the horizon. */
+.plate--saguaro { min-height: min(74vh, 580px); display: flex; align-items: flex-end; }
+.plate--saguaro canvas {
+  -webkit-mask-image:
+    linear-gradient(to bottom, transparent 0%, #000 10%, #000 90%, transparent 100%),
+    linear-gradient(to right, transparent 0%, #000 6%, #000 94%, transparent 100%);
+  mask-image:
+    linear-gradient(to bottom, transparent 0%, #000 10%, #000 90%, transparent 100%),
+    linear-gradient(to right, transparent 0%, #000 6%, #000 94%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}
+.plate--saguaro::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background:
+    linear-gradient(to top, rgba(22,32,43,0.9) 0%, rgba(22,32,43,0.42) 46%, transparent 78%),
+    linear-gradient(to right, rgba(22,32,43,0.7) 0%, rgba(22,32,43,0.15) 46%, transparent 70%);
+}
+
 
 /* ---------- packages as editorial rows ----------
    Five cards on an auto-fit grid always orphaned the last one and mixed three
@@ -830,6 +973,63 @@ details p { margin-top: 0.6rem; font-size: var(--t-sm); color: var(--slate); }
   .plan__price { text-align: left; flex-direction: row; align-items: baseline; gap: 0.6rem; }
 }
 
+/* ---------- packages as a ruled 3x2 grid ----------
+   Opt-in modifier, not a change to .plans, because the row layout above is still
+   the right answer for the pay-scale tables on work.html: those have short
+   descriptions and a number per row, which is what rows are good at.
+
+   Five cards in three columns would orphan the last row, which is the exact
+   problem that made these rows originally. The core package spans two columns
+   instead, so the grid fills 3x2 with no hole and the thing we actually sell is
+   the largest cell on the page.
+
+   Hairlines come from borders on the cells rather than a gap over a coloured
+   background, because .plans appears on two different section grounds and a
+   background here would be wrong on one of them. */
+.plans--grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-top: 1px solid var(--line);
+  border-left: 1px solid var(--line);
+}
+.plans--grid .plan {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.55rem;
+  padding: 1.35rem 1.3rem 1.2rem;
+  border: 0;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.plans--grid .plan:last-child { border-bottom: 1px solid var(--line); }
+.plans--grid .plan__body { gap: 0.4rem; }
+.plans--grid .plan__desc { font-size: 0.86rem; max-width: 42ch; }
+/* Price sits on the baseline of the card, so all three in a row line up however
+   long the description above them runs. */
+.plans--grid .plan__price {
+  margin-top: auto;
+  padding-top: 0.9rem;
+  text-align: left;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-size: 1.24rem;
+}
+.plans--grid .plan--feature { grid-column: span 2; }
+.plans--grid .plan--feature .plan__name { font-size: 1.42rem; }
+.plans--grid .plan--feature .plan__desc { max-width: 56ch; font-size: var(--t-sm); }
+.plans--grid .plan--feature .plan__price { font-size: 1.5rem; }
+
+/* Two columns before one: three narrow columns break down well before the
+   viewport is actually phone-sized. The feature card stops spanning at one
+   column, or it would be the only full-width cell in a single-column stack. */
+@media (max-width: 900px) {
+  .plans--grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .plans--grid .plan--feature { grid-column: span 2; }
+}
+@media (max-width: 560px) {
+  .plans--grid { grid-template-columns: minmax(0, 1fr); }
+  .plans--grid .plan--feature { grid-column: span 1; }
+}
+
 /* Deliberately no global list-measure rule here. An earlier attempt at one left a
    dangling `.answer--after` selector with no comma, so after comment stripping the
    real selector became `.answer--after .answer__list li, .plan__desc, …` — which
@@ -875,6 +1075,7 @@ details p { margin-top: 0.6rem; font-size: var(--t-sm); color: var(--slate); }
   .band { min-height: min(62vh, 480px); }
   .plate--bridge { min-height: min(58vh, 440px); }
   .plate--grove { min-height: min(52vh, 380px); }
+  .plate--saguaro { min-height: min(58vh, 420px); }
 
   .page-hero { min-height: 500px; }
   .page-hero::before {
