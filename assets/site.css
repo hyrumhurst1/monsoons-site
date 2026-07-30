@@ -177,6 +177,17 @@ em.mark { font-style: italic; color: var(--verdigris); }
 .plate em.mark,
 .band em.mark { color: var(--verdigris-lt); }
 
+/* Inline links on a dark ground, same reasoning as em.mark: the base accent is
+   tuned for light surfaces and measures 2.88:1 on indigo. Buttons are excluded
+   because they carry their own colour and their own ground.
+   Found on privacy.html, which was the first page to put a prose link inside a
+   dark section — the rule was missing site-wide, not just there. */
+.section--dark a:not(.btn),
+.plate__inner a:not(.btn),
+.band__inner a:not(.btn),
+.hero__inner a:not(.btn),
+.page-hero__inner a:not(.btn) { color: var(--verdigris-lt); }
+
 /* ---------- nav ---------- */
 
 /* A floating glass bar rather than a full-width band welded to the top. The bar
@@ -919,11 +930,57 @@ em.mark { font-style: italic; color: var(--verdigris); }
 .wont li::before { content: '\2014'; color: var(--verdigris); }
 .wont b { font-weight: 700; }
 
+/* ---------- jump row ----------
+   Three routes out of the top of the argument, for a page that is a long read on a
+   phone. Styled as quiet chips rather than buttons: it is navigation, and it must
+   not compete with the actual call to action. */
+.jump {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  max-width: 46rem;
+}
+.jump a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 0.95rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink-2);
+  font-family: var(--body);
+  font-size: 0.78rem;
+  font-weight: 650;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  transition: border-color 0.13s ease-out, color 0.13s ease-out,
+              background-color 0.13s ease-out;
+}
+.jump a::after {
+  content: '↓';
+  margin-left: 0.4rem;
+  font-size: 0.9em;
+  opacity: 0.55;
+}
+.jump a:hover {
+  border-color: var(--verdigris);
+  color: var(--verdigris-text);
+  background: rgba(63, 122, 107, 0.05);
+}
+
 /* ---------- faq ---------- */
 
 .faq { display: grid; gap: 0.1rem; }
-details { border-bottom: 1px solid var(--line); }
-summary {
+/* Scoped to .faq, all of it. These were bare `details` and `summary` selectors,
+   written when the FAQ was the only disclosure on the site. The moment the package
+   cards and the process steps became disclosures too, every one of these rules
+   leaked onto them: a bottom border on each card, the FAQ's 52px summary height,
+   its paragraph margins, and its +/- marker — `details[open] summary::after` at
+   (0,1,2) even out-specified `.plan__body > summary::after`, so the dash showed on
+   desktop where the card is meant to look like a plain paragraph. */
+.faq details { border-bottom: 1px solid var(--line); }
+.faq summary {
   cursor: pointer; font-weight: 600; font-size: 0.98rem;
   list-style: none;
   display: flex; justify-content: space-between; align-items: center; gap: 1rem;
@@ -935,17 +992,17 @@ summary {
   padding: 0.55rem 0;
   transition: color 0.13s ease-out;
 }
-summary:hover { color: var(--verdigris); }
-summary::-webkit-details-marker { display: none; }
-summary::after {
+.faq summary:hover { color: var(--verdigris-text); }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after {
   content: '+';
   color: var(--verdigris); font-weight: 400; font-size: 1.3rem; line-height: 1;
   flex: none;
 }
-details[open] summary::after { content: '\2013'; }
+.faq details[open] summary::after { content: '\2013'; }
 /* Bottom spacing moved here with the padding, so an open answer still clears the
    rule beneath it. */
-details p { margin: 0 0 1.15rem; font-size: var(--t-sm); color: var(--slate); }
+.faq details p { margin: 0 0 1.15rem; font-size: var(--t-sm); color: var(--slate); }
 
 /* ---------- about ---------- */
 
@@ -1245,6 +1302,19 @@ details p { margin: 0 0 1.15rem; font-size: var(--t-sm); color: var(--slate); }
 }
 .plans--grid .plan:last-child { border-bottom: 1px solid var(--line); }
 .plans--grid .plan__body { gap: 0.4rem; }
+
+/* The package body is a <details> that ships open. On desktop it must look and
+   behave exactly like the paragraph it replaced, so the marker goes and the
+   summary stops advertising itself as interactive. assets/packages.js closes them
+   below 720px, where five stacked descriptions were most of the section's height.
+   Shipping open means no-JS and desktop are both unaffected. */
+.plan__body > summary,
+.step__body > summary { list-style: none; cursor: default; }
+.plan__body > summary::-webkit-details-marker,
+.step__body > summary::-webkit-details-marker { display: none; }
+.plan__body > summary::after,
+.step__body > summary::after { content: none; }
+.step__body > p { margin-top: 0.15rem; }
 .plans--grid .plan__desc { font-size: 0.86rem; max-width: 42ch; }
 /* Price sits on the baseline of the card, so all three in a row line up however
    long the description above them runs. */
@@ -1314,6 +1384,45 @@ details p { margin: 0 0 1.15rem; font-size: var(--t-sm); color: var(--slate); }
 
   /* 44px minimum tap target. Anything smaller is a coin flip with a thumb. */
   .btn { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
+
+  /* Collapsed packages. Here the summary IS the control, so it gets a real target,
+     a marker, and a pointer. The name and the price stay visible either way, which
+     is what makes the closed state meaningful rather than just shorter. */
+  .plan__body > summary {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    min-height: 44px;
+  }
+  .plan__body > summary::after {
+    content: '+';
+    color: var(--verdigris-text);
+    font-size: 1.3rem;
+    line-height: 1;
+    flex: none;
+  }
+  .plan__body[open] > summary::after { content: '\2013'; }
+  .plans--grid .plan { padding-block: 0.6rem 0.9rem; }
+
+  .step__body > summary {
+    cursor: pointer;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+    min-height: 44px;
+  }
+  .step__body > summary::after {
+    content: '+';
+    color: var(--verdigris-text);
+    font-size: 1.2rem;
+    line-height: 1;
+    flex: none;
+    align-self: center;
+  }
+  .step__body[open] > summary::after { content: '\2013'; }
 
   /* Hero was pushing its text 58% down the screen. */
   .hero { min-height: min(78vh, 620px); }

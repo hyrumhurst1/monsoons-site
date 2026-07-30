@@ -197,6 +197,16 @@
           Nobody is scrolling a results page. They are reading three names, picking one,
           and driving there.
         </p>
+
+        <!-- Jump row. The page is a long read on a phone and the footer is thousands
+             of pixels away, so this gives the three questions an owner actually has
+             a direct route from the top of the argument. Real links, so they work
+             without JS and can be opened in a new tab. -->
+        <nav class="jump" aria-label="Jump to a section">
+          <a href="#pricing">What it costs</a>
+          <a href="#guarantee">The guarantee</a>
+          <a href="#honest">What we won’t promise</a>
+        </nav>
       </div>
     </section>
 
@@ -255,52 +265,42 @@
         </div>
         <ol class="steps">
           <li>
-            <div>
-              <h3>We run the questions your customers actually ask</h3>
-              <p>
-                On Gemini, ChatGPT and Perplexity. We save exactly what comes back
+            <details class="step__body" open>
+              <summary><h3>We run the questions your customers actually ask</h3></summary>
+              <p>On Gemini, ChatGPT and Perplexity. We save exactly what comes back
                 before we touch anything. That’s your baseline, and it’s the whole
-                reason we can prove what changed.
-              </p>
-            </div>
+                reason we can prove what changed.</p>
+            </details>
           </li>
           <li>
-            <div>
-              <h3>We agree on five questions, in writing</h3>
-              <p>
-                We propose them, you approve them. Once they’re signed the list is
-                frozen, so nobody moves the goalposts, including us.
-              </p>
-            </div>
+            <details class="step__body" open>
+              <summary><h3>We agree on five questions, in writing</h3></summary>
+              <p>We propose them, you approve them. Once they’re signed the list is
+                frozen, so nobody moves the goalposts, including us.</p>
+            </details>
           </li>
           <li>
-            <div>
-              <h3>We go to work</h3>
-              <p>
-                We write up your business, what you do, where you work, what’s new,
+            <details class="step__body" open>
+              <summary><h3>We go to work</h3></summary>
+              <p>We write up your business, what you do, where you work, what’s new,
                 and get it published across news and industry sites. Then we make sure
                 your name, address and hours match everywhere AI checks, because
-                inconsistent information is a reason to leave you out.
-              </p>
-            </div>
+                inconsistent information is a reason to leave you out.</p>
+            </details>
           </li>
           <li>
-            <div>
-              <h3>We measure the same five questions</h3>
-              <p>
-                Ten fresh runs each, on all three platforms, screenshotted and dated.
+            <details class="step__body" open>
+              <summary><h3>We measure the same five questions</h3></summary>
+              <p>Ten fresh runs each, on all three platforms, screenshotted and dated.
                 We measure across ten because these systems don’t answer the same way
-                twice, one lucky screenshot proves nothing and we won’t pretend it does.
-              </p>
-            </div>
+                twice, one lucky screenshot proves nothing and we won’t pretend it does.</p>
+            </details>
           </li>
           <li>
-            <div>
-              <h3>Then you pay the rest</h3>
-              <p>
-                Only if it worked, by the standard we agreed to in step two.
-              </p>
-            </div>
+            <details class="step__body" open>
+              <summary><h3>Then you pay the rest</h3></summary>
+              <p>Only if it worked, by the standard we agreed to in step two.</p>
+            </details>
           </li>
         </ol>
       </div>
@@ -333,62 +333,52 @@
         </div>
         <div class="plans plans--grid">
           <div class="plan plan--feature">
-            <div class="plan__body">
-              <p class="plan__name">Get you in the answer</p>
-              <p class="plan__desc">
-                Coverage of your business published across the news and industry sites
+            <details class="plan__body" open>
+              <summary><span class="plan__name">Get you in the answer</span></summary>
+              <p class="plan__desc">Coverage of your business published across the news and industry sites
                 AI reads, your details made consistent everywhere it checks, then five
                 agreed questions measured ten runs each on three platforms. The
-                before-and-after report is yours to keep.
-              </p>
-            </div>
+                before-and-after report is yours to keep.</p>
+            </details>
             <p class="plan__price">from $1,000<span>25% deposit</span></p>
           </div>
 
           <div class="plan">
-            <div class="plan__body">
-              <p class="plan__name">The audit</p>
-              <p class="plan__desc">
-                Five questions your customers would actually ask, run on Gemini,
+            <details class="plan__body" open>
+              <summary><span class="plan__name">The audit</span></summary>
+              <p class="plan__desc">Five questions your customers would actually ask, run on Gemini,
                 ChatGPT and Perplexity. You get the screenshots and the names it gives
-                instead of yours.
-              </p>
-            </div>
+                instead of yours.</p>
+            </details>
             <p class="plan__price">Free</p>
           </div>
 
           <div class="plan">
-            <div class="plan__body">
-              <p class="plan__name">Keep it up</p>
-              <p class="plan__desc">
-                New coverage monthly, your questions re-measured, competitors tracked.
+            <details class="plan__body" open>
+              <summary><span class="plan__name">Keep it up</span></summary>
+              <p class="plan__desc">New coverage monthly, your questions re-measured, competitors tracked.
                 Your Google Business Profile is built out and maintained as part of
-                this. Cancel any month.
-              </p>
-            </div>
+                this. Cancel any month.</p>
+            </details>
             <p class="plan__price">from $500<span>per month</span></p>
           </div>
 
           <div class="plan">
-            <div class="plan__body">
-              <p class="plan__name">A new website</p>
-              <p class="plan__desc">
-                For when the site you have is working against you. Fast on a phone, and
-                structured so AI can read what is on it. Yours outright when it ships.
-              </p>
-            </div>
+            <details class="plan__body" open>
+              <summary><span class="plan__name">A new website</span></summary>
+              <p class="plan__desc">For when the site you have is working against you. Fast on a phone, and
+                structured so AI can read what is on it. Yours outright when it ships.</p>
+            </details>
             <p class="plan__price">Custom quote</p>
           </div>
 
           <div class="plan">
-            <div class="plan__body">
-              <p class="plan__name">Automations and AI builds</p>
-              <p class="plan__desc">
-                Answering the same five phone questions without picking up, following
+            <details class="plan__body" open>
+              <summary><span class="plan__name">Automations and AI builds</span></summary>
+              <p class="plan__desc">Answering the same five phone questions without picking up, following
                 up on quotes, training your staff. Delivered with
-                <strong>QuarterSmart</strong>, an AI studio here in Mesa.
-              </p>
-            </div>
+                <strong>QuarterSmart</strong>, an AI studio here in Mesa.</p>
+            </details>
             <p class="plan__price">Through QuarterSmart</p>
           </div>
         </div>
@@ -543,28 +533,6 @@
             <p>
               You do. It’s about your business, it stays published whether you keep
               working with us or not, and you can post and reuse it however you like.
-            </p>
-          </details>
-          <details>
-            <summary>Can you fix my website too?</summary>
-            <p>
-              Yes, and honestly a lot of the places we walk into need it. We build sites
-              that look like someone designed them on purpose, and we build them so AI
-              can actually read what’s on them, which most sites get wrong. Pages that
-              answer what people already call and ask you, marked up so a machine
-              understands it. Quoted once we have seen what you have now, and it is
-              yours outright when it ships.
-            </p>
-          </details>
-          <details>
-            <summary>Do you do other AI work?</summary>
-            <p>
-              We’re partnered with <strong>QuarterSmart</strong>, an AI studio here in
-              Mesa, for the bigger stuff, automating the repetitive work in your
-              operation, answering the same five phone questions without you picking up,
-              training your team on AI they’ll actually use. If you want that, we’ll
-              bring them in. If you just want to show up in the answer, you never have
-              to hear about it again.
             </p>
           </details>
           <details>
@@ -730,6 +698,7 @@
       initDitherHeadings('[data-dither-head]', { pixelSize: narrow ? 5 : 4 });
     </script>
     <script type="module" src="./assets/nav.js?v=2"></script>
+    <script type="module" src="./assets/packages.js?v=2"></script>
     <script type="module" src="./assets/logo-resolve.js?v=2"></script>
   </body>
 </html>
