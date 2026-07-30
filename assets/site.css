@@ -232,15 +232,24 @@ em.mark { font-style: italic; color: var(--verdigris); }
   display: inline-flex; align-items: center; gap: 0.68rem;
   min-height: 48px;
 }
-.nav__mark {
-  width: 42px;
-  height: 42px;
+/* The real wordmark asset, not type set to imitate it. The drawn letterforms are
+   a blocky pixel face that no webfont on the site matches, so a text version was
+   never the same mark — it was a different one that happened to say the same word.
+
+   Source is logo-lockup-clean.png cropped at x=1055, which is where "MONSOONS"
+   ends and the 47px word space before "AI" begins. The nav says "Monsoons"; the
+   spoken and written brand drops the AI. See BRAND.md. */
+.nav__lockup {
+  /* 44px in a 66px pill. The asset is 330x120 cropped tight to the ink, so this
+     is ~2.7x device pixels and the roundel lands slightly larger than the 42px
+     mark it replaced, which the brand needs to hold its own next to the links. */
+  height: 44px;
+  width: auto;
   display: block;
-  object-fit: contain;
 }
 /* Wrapper inserted by assets/logo-resolve.js so the reveal canvas can sit over
-   the mark. Sized by the mark itself, so if the script never runs the wrapper
-   never exists and the mark is unaffected. */
+   the lockup. Sized by the lockup itself, so if the script never runs the wrapper
+   never exists and the image is unaffected. */
 .markfx { position: relative; display: block; line-height: 0; }
 .markfx > .markfx__c {
   position: absolute; inset: 0;
@@ -248,24 +257,7 @@ em.mark { font-style: italic; color: var(--verdigris); }
   display: block; pointer-events: none;
 }
 /* The image only hides while the canvas is actually painting it. */
-.markfx--running > .nav__mark { visibility: hidden; }
-.nav__wordmark {
-  font-family: var(--display);
-  font-size: 1.34rem;
-  font-weight: 720;
-  line-height: 1;
-  letter-spacing: -0.035em;
-  font-variation-settings: 'SOFT' 18, 'WONK' 1;
-}
-.nav__wordmark span {
-  margin-left: 0.16em;
-  color: var(--verdigris);
-  font-family: var(--body);
-  font-size: 0.58em;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  vertical-align: 0.16em;
-}
+.markfx--running > .nav__lockup { visibility: hidden; }
 .nav__links { display: flex; gap: 1rem; margin-left: auto; align-items: center; flex-wrap: wrap; }
 .nav__links a {
   font-size: 0.78rem; font-weight: 650; color: var(--ink-2); text-decoration: none;
@@ -789,18 +781,30 @@ em.mark { font-style: italic; color: var(--verdigris); }
 /* ---------- faq ---------- */
 
 .faq { display: grid; gap: 0.1rem; }
-details {
-  border-bottom: 1px solid var(--line);
-  padding: 0.95rem 0;
-}
+details { border-bottom: 1px solid var(--line); }
 summary {
   cursor: pointer; font-weight: 600; font-size: 0.98rem;
-  list-style: none; display: flex; justify-content: space-between; gap: 1rem;
+  list-style: none;
+  display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+  /* The padding used to sit on `details`, which meant the hit area was only the
+     text's own line box: 27px tall on the primary control of this section, well
+     under the 44px minimum, and the padded strip around it did nothing when
+     tapped. On the control it is both the spacing and the target. */
+  min-height: 52px;
+  padding: 0.55rem 0;
+  transition: color 0.13s ease-out;
 }
+summary:hover { color: var(--verdigris); }
 summary::-webkit-details-marker { display: none; }
-summary::after { content: '+'; color: var(--verdigris); font-weight: 400; font-size: 1.15rem; line-height: 1; }
+summary::after {
+  content: '+';
+  color: var(--verdigris); font-weight: 400; font-size: 1.3rem; line-height: 1;
+  flex: none;
+}
 details[open] summary::after { content: '\2013'; }
-details p { margin-top: 0.6rem; font-size: var(--t-sm); color: var(--slate); }
+/* Bottom spacing moved here with the padding, so an open answer still clears the
+   rule beneath it. */
+details p { margin: 0 0 1.15rem; font-size: var(--t-sm); color: var(--slate); }
 
 /* ---------- about ---------- */
 

@@ -12,8 +12,8 @@
 // ============================================================
 
 const DUR = 680;
-const CELL = 3;      // mask cell in CSS px. At a 42px mark that is a 14x14 grid,
-                     // coarse enough to read as dots at this size.
+const CELL = 3;      // mask cell in CSS px. On the 110x40 nav lockup that is a
+                     // 37x14 grid, coarse enough to read as dots at this size.
 const JITTER = 2.6;  // cell-widths of travel before a cell settles
 // Fraction of the run any single cell takes to fade in. Cell start times are
 // spread across the remaining (1 - WINDOW), which is what guarantees every cell
@@ -111,7 +111,7 @@ export function initLogoResolve(img) {
   requestAnimationFrame(frame);
 }
 
-const mark = document.querySelector('.nav__mark');
+const mark = document.querySelector('.nav__lockup');
 if (mark) {
   if (mark.complete && mark.naturalWidth) initLogoResolve(mark);
   else mark.addEventListener('load', () => initLogoResolve(mark), { once: true });
