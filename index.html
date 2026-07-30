@@ -35,6 +35,7 @@
             "alternateName": "Monsoons AI",
             "description": "AI visibility for local businesses. We get East Valley businesses named and recommended by AI answer engines when nearby customers ask who to hire.",
             "url": "https://monsoonsai.com/",
+            "sameAs": ["https://www.linkedin.com/company/monsoons-ai/"],
             "telephone": "+1-480-289-1294",
             "address": {
               "@type": "PostalAddress",
@@ -219,7 +220,7 @@
       <div class="wrap">
         <div class="head">
           <p class="label">What we do</p>
-          <h2>Two things happen, and they last different amounts of time</h2>
+          <h2 data-dither-head>Two things happen, and they last different amounts of time</h2>
         </div>
         <div class="cols">
           <div class="col">
@@ -269,6 +270,7 @@
         </div>
         <ol class="steps">
           <li>
+            <span class="step__num">1</span>
             <details class="step__body" open>
               <summary><h3>We run the questions your customers actually ask</h3></summary>
               <p>On Gemini, ChatGPT and Perplexity. We save exactly what comes back
@@ -277,6 +279,7 @@
             </details>
           </li>
           <li>
+            <span class="step__num">2</span>
             <details class="step__body" open>
               <summary><h3>We agree on five questions, in writing</h3></summary>
               <p>We propose them, you approve them. Once they’re signed the list is
@@ -284,6 +287,7 @@
             </details>
           </li>
           <li>
+            <span class="step__num">3</span>
             <details class="step__body" open>
               <summary><h3>We go to work</h3></summary>
               <p>We write up your business, what you do, where you work, what’s new,
@@ -293,6 +297,7 @@
             </details>
           </li>
           <li>
+            <span class="step__num">4</span>
             <details class="step__body" open>
               <summary><h3>We measure the same five questions</h3></summary>
               <p>Ten fresh runs each, on all three platforms, screenshotted and dated.
@@ -301,6 +306,7 @@
             </details>
           </li>
           <li>
+            <span class="step__num">5</span>
             <details class="step__body" open>
               <summary><h3>Then you pay the rest</h3></summary>
               <p>Only if it worked, by the standard we agreed to in step two.</p>
@@ -572,7 +578,7 @@
       <div class="wrap">
         <div class="head">
           <p class="label">Start here</p>
-          <h2>Find out what AI says about you</h2>
+          <h2 data-dither-head>Find out what AI says about you</h2>
           <p class="lede">
             We’ll run five questions your customers would actually ask, on all three
             platforms, and send you the screenshots. Free, and there’s nothing to
@@ -612,6 +618,7 @@
           <a href="./work.html">Work with us</a>
           <a href="./news/">Newsroom</a>
           <a href="./privacy.html">Privacy</a>
+          <a href="https://www.linkedin.com/company/monsoons-ai/" rel="noopener">LinkedIn</a>
         </nav>
         <div class="footer__contact">
           <p class="footer__eyebrow">Start here</p>
@@ -708,13 +715,23 @@
                    document.getElementById(imgId), opts);
       }
 
-      // Dithered headings. Three, not ten. These are the three lines the whole
-      // pitch rests on — the problem, the honest part, the guarantee — so the
-      // treatment marks the argument's spine rather than decorating every band.
-      // Each resolves out of loose dots once, on first sight, then pauses and
-      // only wakes for the pointer. Nothing here moves at rest, which is what
-      // keeps the hero as the page's single motion moment.
-      initDitherHeadings('[data-dither-head]', { pixelSize: narrow ? 5 : 4 });
+      // Dithered headings. Five, not ten. These are the lines the pitch rests
+      // on — the problem, what lasts, the guarantee, the honest part, and the
+      // closing ask — so the treatment marks the argument's spine rather than
+      // decorating every band. Each resolves out of loose dots once, on first
+      // sight, then pauses and only wakes for the pointer.
+      //
+      // The option is `cell`, not `pixelSize`. initDitherText only spreads
+      // opts.dither, so the `pixelSize: narrow ? 5 : 4` that used to sit here
+      // was read by nothing and every heading has always rendered at the
+      // default pitch of 2. Stated explicitly now so it is not mistaken for a
+      // knob that works.
+      initDitherHeadings('[data-dither-head]', { cell: 2 });
+
+      // The five step numerals, same mechanism at a finer pitch. A digit has a
+      // much smaller cap height than a heading, and cell count is capHeight /
+      // pitch, so 2 would give it about seven rows and read as a blob.
+      initDitherHeadings('.step__num', { cell: 1.6 });
     </script>
     <script type="module" src="./assets/nav.js?v=2"></script>
     <script type="module" src="./assets/packages.js?v=2"></script>

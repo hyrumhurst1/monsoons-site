@@ -876,17 +876,57 @@ em.mark { font-style: italic; color: var(--verdigris); }
 
 /* ---------- numbered steps ---------- */
 
-.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 1.15rem; }
-.steps li { display: grid; grid-template-columns: 2.1rem 1fr; gap: 0.9rem; align-items: start; }
-.steps li::before {
-  content: counter(step);
-  counter-increment: step;
-  font-family: var(--display); font-size: 1.25rem; color: var(--verdigris);
-  line-height: 1.1;
+/* The numeral moved out of a ::before counter and into a real <span>. A pseudo
+   element cannot hold a canvas, and these numerals are dithered — see
+   assets/step-numbers.js. The span is also what makes each step a proper
+   two-column row instead of a marker hanging off the side of one. */
+.steps {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; gap: 0;
 }
-.steps { counter-reset: step; }
-.steps h3 { margin-bottom: 0.15rem; }
-.steps p { font-size: var(--t-sm); color: var(--slate); }
+.steps li {
+  display: grid;
+  grid-template-columns: 3.1rem 1fr;
+  gap: 1.05rem;
+  align-items: start;
+  padding-block: 1.15rem;
+  border-top: 1px solid var(--line);
+}
+.steps li:first-child { border-top: 0; padding-top: 0; }
+.steps li:last-child { padding-bottom: 0; }
+
+/* Fixed box so all five numerals occupy identical space whether or not the
+   canvas has painted yet — otherwise the column reflows as each one resolves.
+   Only .dtext__t is in flow (the bleed box is absolute), so place-items still
+   centres the numeral once dither-text.js has wrapped it.
+
+   Size and colour are both set by the dither rather than by taste.
+
+   Size, because cell count is capHeight / pitch, and below about ten rows
+   through a digit the dot field stops reading as a number.
+
+   Colour, because the ditherer maps luminance to dot size. Verdigris on paper
+   is a mid-tone, so a solid glyph quantised to five levels came out as
+   half-size dots and a 1.5rem numeral rendered as unreadable scatter — measured
+   at roughly a third of the ink a solid digit would carry. Near-black ink maps
+   to the darkest level, so the dots go full size and the numeral holds. The
+   accent stays on the border, where tone does not have to survive quantising. */
+.step__num {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 3.1rem; height: 3.1rem;
+  font-family: var(--display);
+  font-size: 1.7rem;
+  line-height: 1;
+  color: var(--ink);
+  border: 1px solid rgba(58, 112, 98, 0.45);
+  border-radius: 0.7rem;
+}
+.steps h3 { margin-bottom: 0.22rem; font-size: 1.02rem; }
+/* Was --slate on a tinted ground, which put the explanatory copy of the most
+   load-bearing section on the page at the lightest value in the palette. */
+.steps p { font-size: var(--t-sm); color: var(--ink-2); line-height: 1.6; }
 
 /* ---------- pricing ---------- */
 
@@ -971,7 +1011,7 @@ em.mark { font-style: italic; color: var(--verdigris); }
 
 /* ---------- faq ---------- */
 
-.faq { display: grid; gap: 0.1rem; }
+.faq { display: grid; gap: 0.5rem; }
 /* Scoped to .faq, all of it. These were bare `details` and `summary` selectors,
    written when the FAQ was the only disclosure on the site. The moment the package
    cards and the process steps became disclosures too, every one of these rules
@@ -979,7 +1019,23 @@ em.mark { font-style: italic; color: var(--verdigris); }
    its paragraph margins, and its +/- marker — `details[open] summary::after` at
    (0,1,2) even out-specified `.plan__body > summary::after`, so the dash showed on
    desktop where the card is meant to look like a plain paragraph. */
-.faq details { border-bottom: 1px solid var(--line); }
+/* Cards rather than a ruled list. The horizontal padding is the load-bearing
+   part: with a radius and a fill but no inline padding, the question text and
+   the +/- marker sit flush against the corner arcs and read as clipped. The
+   padding lives on `details` so it applies to the answer too, and the summary
+   keeps its own vertical padding for the 44px hit target. */
+.faq details {
+  border: 1px solid var(--line);
+  border-radius: 0.9rem;
+  background: rgba(255, 255, 255, 0.34);
+  padding-inline: clamp(0.95rem, 2vw, 1.3rem);
+  transition: background 0.15s ease-out, border-color 0.15s ease-out;
+}
+.faq details:hover { background: rgba(255, 255, 255, 0.55); }
+.faq details[open] {
+  background: rgba(255, 255, 255, 0.66);
+  border-color: rgba(58, 112, 98, 0.34);
+}
 .faq summary {
   cursor: pointer; font-weight: 600; font-size: 0.98rem;
   list-style: none;
@@ -1020,11 +1076,20 @@ em.mark { font-style: italic; color: var(--verdigris); }
 
 /* ---------- footer ---------- */
 
+/* The footer used to be #101923 directly beneath --indigo #16202b. Those two
+   grounds compute to a 1.08:1 contrast ratio, which is why the CTA and the
+   footer read as one undifferentiated slab.
+
+   Worth knowing why this cannot be fixed with tone alone: against a ground that
+   dark, even pure black only reaches 1.28:1, so there is almost no headroom in
+   either direction. The separation has to come from an actual edge. So the
+   footer drops to near-black for what step is available, and takes a verdigris
+   hairline that is unambiguously a boundary rather than a shading change. */
 .footer {
-  background: #101923;
+  background: #080e15;
   color: var(--on-dark-3);
   padding: clamp(3.5rem, 7vw, 5.5rem) var(--pad) 1.6rem;
-  border-top: 1px solid var(--line-dk);
+  border-top: 1px solid rgba(106, 171, 152, 0.32);
   font-size: 0.82rem;
 }
 .footer a { color: var(--bone); text-decoration: none; }
@@ -1107,6 +1172,25 @@ em.mark { font-style: italic; color: var(--verdigris); }
 
 .plate {
   padding-inline: var(--pad); position: relative; overflow: hidden; background: var(--indigo); }
+
+/* Framed interludes rather than full-bleed slabs. Pulling the dark panels in by
+   the page gutter gives them a visible edge against the paper, and the narrower
+   canvas means the same pixelSize resolves a finer dot grid — which is most of
+   why the dither reads better inset than it does edge to edge.
+
+   The breakpoint is not cosmetic and 1280 is not a guess. A plate already has
+   padding-inline: var(--pad), so adding a matching margin insets its content by
+   two gutters against a section's one. Both containers centre the same 68rem
+   rail, so while there is room to centre they land on the identical left edge —
+   but the plate runs out of room first, at 68rem + 4*pad = 1264px, and below
+   that its text steps 44px inward while section text does not. Measured at
+   1100px: sections at 44, plates at 88. So the frame only applies above the
+   width where it is free, and narrower viewports keep the full-bleed plate and
+   the one shared rail. */
+@media (min-width: 1280px) {
+  .plate,
+  .band { margin-inline: var(--pad); }
+}
 /* Stills accept the pointer, video plates do not. The lean pairs with the
    wave on a static image; over playing video it just fights the motion. */
 .plate canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
@@ -1287,19 +1371,32 @@ em.mark { font-style: italic; color: var(--verdigris); }
    Hairlines come from borders on the cells rather than a gap over a coloured
    background, because .plans appears on two different section grounds and a
    background here would be wrong on one of them. */
+/* Discrete cards rather than a hairline table. The table version shared one rule
+   between neighbours, which reads as a spreadsheet; separating them lets each
+   package be scanned as its own object, which is how somebody actually shops a
+   price list. The container carries no border at all now — the cards are the
+   structure. */
+/* Released from the 46rem cap that .faq, .plans, .steps and .callout share. That
+   cap is a reading measure and it belongs on running prose; a three-column card
+   grid inside it gets 235px columns, which is why six packages of real copy read
+   as cramped. Cards get the full 68rem rail. The measure still applies inside
+   each card via .plan__desc. */
 .plans--grid {
+  max-width: none;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  border-top: 1px solid var(--line);
-  border-left: 1px solid var(--line);
+  gap: 0.7rem;
+  border: 0;
 }
 .plans--grid .plan {
   grid-template-columns: minmax(0, 1fr);
   gap: 0.55rem;
-  padding: 1.35rem 1.3rem 1.2rem;
-  border: 0;
-  border-right: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
+  padding: 1.4rem 1.35rem 1.3rem;
+  border: 1px solid var(--line);
+  border-radius: 0.9rem;
+  background: rgba(255, 255, 255, 0.34);
+  transition: background 0.15s ease-out, border-color 0.15s ease-out;
 }
+.plans--grid .plan:hover { background: rgba(255, 255, 255, 0.58); }
 .plans--grid .plan:last-child { border-bottom: 1px solid var(--line); }
 .plans--grid .plan__body { gap: 0.4rem; }
 
@@ -1331,10 +1428,15 @@ em.mark { font-style: italic; color: var(--verdigris); }
    7 cells in a 3-column grid, which orphans the last row — the exact problem the span
    was introduced to solve when there were five. Six equal cells fill 3x2 exactly, and
    the feature gets its emphasis from a rule and a tint instead of from width. */
+/* On a square cell the emphasis was an inset 3px rule along the top edge. On a
+   rounded card that bar has to bend around the corners and reads as an artefact,
+   so the feature card takes its emphasis from a brighter fill and a verdigris
+   border instead — same job, no bent rule. */
 .plans--grid .plan--feature {
-  box-shadow: inset 0 3px 0 var(--verdigris);
-  background: rgba(63, 122, 107, 0.04);
+  background: rgba(255, 255, 255, 0.66);
+  border-color: rgba(58, 112, 98, 0.45);
 }
+.plans--grid .plan--feature:hover { background: rgba(255, 255, 255, 0.78); }
 .plans--grid .plan--feature .plan__name { font-size: 1.42rem; }
 .plans--grid .plan--feature .plan__desc { max-width: 56ch; font-size: var(--t-sm); }
 .plans--grid .plan--feature .plan__price { font-size: 1.5rem; }
