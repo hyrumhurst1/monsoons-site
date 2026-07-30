@@ -307,31 +307,14 @@ em.mark { font-style: italic; color: var(--verdigris); }
 .section--dark h2, .section--dark h3 { color: var(--bone); }
 
 .wrap { max-width: 68rem; margin: 0 auto; display: flex; flex-direction: column; gap: var(--s4); }
-.wrap--narrow { max-width: 46rem; }
+/* Narrow limits the measure, not the rail. Centring it moved the left
+   edge on every other section, which is what made the page feel
+   assembled rather than laid out. */
+.wrap--narrow { max-width: 68rem; }
+.wrap--narrow > *, .wrap--narrow .head { max-width: 46rem; }
 .head { display: flex; flex-direction: column; gap: 0.5rem; }
 .head .lede { margin-top: 0.4rem; }
 
-/* ---------- the fake answer block ---------- */
-
-.answer {
-  border: 1px solid var(--line);
-  border-radius: 0;
-  background: #fff;
-  padding: 1.1rem 1.25rem;
-  display: flex; flex-direction: column; gap: 0.8rem;
-  max-width: 34rem;
-  box-shadow: 0 1px 2px rgba(28, 26, 23, 0.04);
-}
-.answer__q {
-  font-family: var(--mono); font-size: var(--t-xs); color: var(--slate);
-  padding-bottom: 0.7rem; border-bottom: 1px solid var(--line);
-}
-.answer__body { font-size: var(--t-sm); display: flex; flex-direction: column; gap: 0.5rem; }
-.answer__list { margin: 0; padding-left: 1.2rem; display: flex; flex-direction: column; gap: 0.3rem; }
-.answer__you {
-  font-size: var(--t-xs); color: var(--slate); font-style: italic;
-  padding-top: 0.7rem; border-top: 1px dashed var(--line);
-}
 
 /* ---------- grids ---------- */
 
@@ -581,36 +564,7 @@ details p { margin-top: 0.6rem; font-size: var(--t-sm); color: var(--slate); }
   .plan__price { text-align: left; flex-direction: row; align-items: baseline; gap: 0.6rem; }
 }
 
-/* ---------- before / after answer pair ---------- */
-
-.ba {
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr));
-  align-items: start;
-}
-.ba .answer { max-width: none; }
-.answer__state {
-  font-family: var(--body);
-  font-size: var(--t-xs);
-  font-weight: 600;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--ink-2);
-}
-.answer--after { border-color: var(--verdigris); box-shadow: inset 0 2px 0 var(--verdigris); }
-.answer--after .answer__state { color: var(--verdigris); }
-.answer__list .is-you {
-  font-weight: 700;
-  color: var(--verdigris);
-}
-.ba__note {
-  font-size: var(--t-xs);
-  letter-spacing: 0.02em;
-  color: var(--ink-2);
-  font-style: italic;
-}
-
+.answer--after 
 /* Lists do not inherit the paragraph measure. Govern them explicitly rather
    than relying on their container happening to be narrow. */
 .answer__list li, .plan__desc, .tier ul li { max-width: 54ch; }
@@ -672,4 +626,148 @@ details p { margin-top: 0.6rem; font-size: var(--t-sm); color: var(--slate); }
   .nav__lockup { height: 34px; }
   /* The brand link shrink-wraps its image, so it needs its own tap height. */
   .nav__brand { min-height: 44px; }
+}
+
+/* ============================================================
+   The answer pair.
+
+   These were plain bordered white boxes, which is the look this whole site is
+   trying not to be. They now read as what they represent: an answer surface.
+   No outline on the "before" at all, just paper with a hairline rule and the
+   query set as real typed input. The "after" gets the weight, because that is
+   the state we are selling.
+   ============================================================ */
+
+.ba {
+  display: grid;
+  gap: 0;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 21rem), 1fr));
+  align-items: stretch;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.answer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+  padding: var(--s4) var(--s4) var(--s4) 0;
+  max-width: none;
+  background: none;
+  border: 0;
+  box-shadow: none;
+}
+/* Divider between the two states, not a box around each. */
+.ba .answer + .answer {
+  padding-left: var(--s4);
+  border-left: 1px solid var(--line);
+}
+
+.answer__state {
+  font-family: var(--body);
+  font-size: var(--t-xs);
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--slate);
+}
+
+/* The query is literal typed input, so it looks typed. */
+.answer__q {
+  font-family: var(--mono);
+  font-size: 0.84rem;
+  line-height: 1.5;
+  color: var(--ink);
+  padding-left: 1.15rem;
+  position: relative;
+  max-width: none;
+}
+.answer__q::before {
+  content: '›';
+  position: absolute;
+  left: 0;
+  color: var(--verdigris);
+  font-family: var(--body);
+  font-size: 1.05rem;
+  line-height: 1.2;
+}
+
+.answer__body { display: flex; flex-direction: column; gap: var(--s2); font-size: var(--t-sm); }
+.answer__body p { color: var(--ink-2); max-width: 40ch; }
+
+/* Ranked names as a real list with figures, not bullets in a card. */
+.answer__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: ans;
+  display: flex;
+  flex-direction: column;
+}
+.answer__list li {
+  counter-increment: ans;
+  display: grid;
+  grid-template-columns: 1.6rem 1fr;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--line);
+  font-size: var(--t-sm);
+  max-width: 40ch;
+}
+.answer__list li:last-child { border-bottom: 0; }
+.answer__list li::before {
+  content: counter(ans);
+  font-family: var(--display);
+  font-variant-numeric: lining-nums;
+  color: var(--slate);
+  font-size: var(--t-sm);
+}
+
+/* The one line that carries the whole section. */
+.answer__list .is-you {
+  font-weight: 700;
+  color: var(--verdigris);
+}
+.answer__list .is-you::before {
+  color: var(--verdigris);
+  font-weight: 700;
+}
+
+.answer__you {
+  font-size: var(--t-xs);
+  line-height: 1.6;
+  color: var(--slate);
+  font-style: italic;
+  max-width: 34ch;
+  margin-top: auto;          /* pin to the bottom so both columns align */
+  padding-top: var(--s2);
+}
+
+/* The state we are selling gets the weight: warmer ground, a verdigris rule
+   above it, and its label in the accent. */
+.answer--after {
+  background: var(--verdigris-tint, rgba(63, 122, 107, 0.045));
+  box-shadow: inset 0 2px 0 var(--verdigris);
+  padding-left: var(--s4);
+  padding-right: var(--s4);
+}
+.answer--after .answer__state { color: var(--verdigris); }
+.answer--after .answer__you { color: var(--ink-2); font-style: normal; }
+
+.ba__note {
+  font-size: var(--t-xs);
+  color: var(--slate);
+  font-style: italic;
+  max-width: 46ch;
+}
+
+@media (max-width: 700px) {
+  .answer { padding: var(--s3) 0; }
+  .ba .answer + .answer {
+    padding-left: var(--s3);
+    padding-right: var(--s3);
+    border-left: 0;
+    border-top: 1px solid var(--line);
+  }
+  .answer__you { margin-top: 0; }
 }
