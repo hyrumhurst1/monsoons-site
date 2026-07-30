@@ -68,7 +68,11 @@ export const DEFAULTS = {
   // frame, so dots pop in and out and the whole plate crawls. Blending this
   // frame's luminance into the last one makes cells ease between states.
   // 0 disables it; 0.8 is very smooth but laggy on fast motion.
-  temporal: 0.62,
+  temporal: 0.45,
+  // Above this per-cell frame-to-frame delta, temporal easing is released so
+  // motion stays responsive. Below it, history is held so still areas do not
+  // pop or band. Fixed easing everywhere is what made the plates feel slow.
+  temporalBreak: 0.06,
   // Gamma below 1 lifts midtones before quantising, so gradients step less
   // visibly across the available tone levels.
   gamma: 0.85,
@@ -156,13 +160,19 @@ export function initDither(canvas, video, options = {}) {
       for (let i = 0, p = 0; i < lum.length; i++, p += 4)
         lum[i] = (0.2126 * px[p] + 0.7152 * px[p + 1] + 0.0722 * px[p + 2]) / 255;
 
-      // Ease toward the new frame instead of snapping to it.
+      // Motion-adaptive easing. A single blend factor across the whole frame
+      // either bands in the still areas or smears the moving ones; scaling the
+      // factor by how much each cell actually changed gets both.
       if (P.temporal > 0) {
         if (!prevLum || prevLum.length !== lum.length) {
           prevLum = lum.slice();
         } else {
-          const k = P.temporal;
+          const kMax = P.temporal;
+          const brk = P.temporalBreak;
           for (let i = 0; i < lum.length; i++) {
+            const delta = Math.abs(lum[i] - prevLum[i]);
+            // Full easing when static, none once the cell is clearly moving.
+            const k = delta >= brk ? 0 : kMax * (1 - delta / brk);
             prevLum[i] = prevLum[i] * k + lum[i] * (1 - k);
             lum[i] = prevLum[i];
           }

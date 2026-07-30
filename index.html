@@ -635,7 +635,17 @@
         contrast: 13,
         floor: 0.004,
         levels: 8,
-        leanStrength: 0,   // video plates are static; interaction is on the stills
+        leanStrength: 0,   // interaction lives on the stills, not on video
+        // Ambient only: a very slow, very wide, very low-gain crest. Wide enough
+        // that no edge is ever visible, weak enough that you notice the plate is
+        // alive without being able to point at what moved. This is the whole
+        // motion budget for the page.
+        wave: true,
+        waveSpeed: 0.00055,
+        waveWidth: 0.55,
+        waveGain: 0.3,
+        waveLift: 3,
+        waveTilt: 0.5,
       });
 
       // Second plate, mid page. Only starts decoding once it scrolls into view,
