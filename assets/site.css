@@ -78,6 +78,15 @@
 
   --measure: 58ch;
   --pad: clamp(1.15rem, 4vw, 2.75rem);
+
+  /* Height of the floating nav pill, and the gutter above and below it. Both are
+     needed in two places — the pill's own min-height and the negative margin that
+     pulls the hero up underneath it — so they live here rather than as a number
+     written twice. If the nav links ever wrap to a second line the pill grows past
+     this and the hero offset is wrong, so keep the link set short enough to fit
+     one line at 375px. */
+  --nav-h: 66px;
+  --nav-gutter: 0.7rem;
 }
 
 * { box-sizing: border-box; }
@@ -148,7 +157,7 @@ em.mark { font-style: italic; color: var(--verdigris); }
   position: sticky;
   top: 0;
   z-index: 30;
-  padding: 0.7rem var(--pad);
+  padding: var(--nav-gutter) var(--pad);
   /* No background or border on the bar itself: the glass is the pill inside it,
      and a band here would cancel the floating effect. */
   background: transparent;
@@ -157,7 +166,7 @@ em.mark { font-style: italic; color: var(--verdigris); }
 .nav__inner {
   width: 100%;
   max-width: 68rem;
-  min-height: 66px;
+  min-height: var(--nav-h);
   margin: 0 auto;
   padding: 0 0.55rem 0 0.85rem;
   display: flex;
@@ -210,7 +219,7 @@ em.mark { font-style: italic; color: var(--verdigris); }
    nothing at the top of the hero for the pill to cover. Every other page opens
    with a heading at the top of its first section, so those keep the bar in flow
    rather than dropping it on top of their h1. */
-.nav + .hero { margin-top: calc(-1 * (66px + 1.4rem)); }
+.nav + .hero { margin-top: calc(-1 * (var(--nav-h) + var(--nav-gutter) * 2)); }
 /* Where backdrop-filter is unavailable the translucent fill would let text
    collide with whatever scrolls under it, so those browsers get an opaque pill. */
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
