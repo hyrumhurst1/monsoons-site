@@ -1327,7 +1327,14 @@ em.mark { font-style: italic; color: var(--verdigris); }
   gap: 0.5rem;
   font-size: 1.24rem;
 }
-.plans--grid .plan--feature { grid-column: span 2; }
+/* Six packages now, so the feature card no longer spans two columns: 2 + 5 singles is
+   7 cells in a 3-column grid, which orphans the last row — the exact problem the span
+   was introduced to solve when there were five. Six equal cells fill 3x2 exactly, and
+   the feature gets its emphasis from a rule and a tint instead of from width. */
+.plans--grid .plan--feature {
+  box-shadow: inset 0 3px 0 var(--verdigris);
+  background: rgba(63, 122, 107, 0.04);
+}
 .plans--grid .plan--feature .plan__name { font-size: 1.42rem; }
 .plans--grid .plan--feature .plan__desc { max-width: 56ch; font-size: var(--t-sm); }
 .plans--grid .plan--feature .plan__price { font-size: 1.5rem; }
@@ -1337,11 +1344,9 @@ em.mark { font-style: italic; color: var(--verdigris); }
    column, or it would be the only full-width cell in a single-column stack. */
 @media (max-width: 900px) {
   .plans--grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .plans--grid .plan--feature { grid-column: span 2; }
 }
 @media (max-width: 560px) {
   .plans--grid { grid-template-columns: minmax(0, 1fr); }
-  .plans--grid .plan--feature { grid-column: span 1; }
 }
 
 /* Deliberately no global list-measure rule here. An earlier attempt at one left a
