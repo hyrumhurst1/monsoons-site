@@ -614,3 +614,62 @@ details p { margin-top: 0.6rem; font-size: var(--t-sm); color: var(--slate); }
 /* Lists do not inherit the paragraph measure. Govern them explicitly rather
    than relying on their container happening to be narrow. */
 .answer__list li, .plan__desc, .tier ul li { max-width: 54ch; }
+
+/* ============================================================
+   Mobile. Checked at 375px, which is where most of these buyers
+   actually are: on a phone, in a truck, between jobs.
+   ============================================================ */
+
+@media (max-width: 720px) {
+  /* The nav was wrapping to two rows and eating 22% of the viewport before
+     the hero even started. On a single-scroll page the section anchors are
+     not load-bearing, and they all exist in the footer, so mobile keeps the
+     logo and the one action that matters. */
+  .nav { padding: 0.6rem var(--pad); gap: 0.75rem; flex-wrap: nowrap; }
+  .nav__links a:not(.btn) { display: none; }
+  .nav__links { gap: 0; }
+
+  /* 44px minimum tap target. Anything smaller is a coin flip with a thumb. */
+  .nav__links .btn { min-height: 44px; display: inline-flex; align-items: center; padding: 0.5rem 0.95rem; }
+  .btn { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
+
+  /* Hero was pushing its text 58% down the screen. */
+  .hero { min-height: min(78vh, 620px); }
+  .hero__inner { padding-top: 2.25rem; padding-bottom: 2.25rem; }
+  .band__inner, .plate__inner { padding-top: 2.5rem; padding-bottom: 2.5rem; }
+
+  /* Tracked caps at full width had nowhere to break. Let them wrap and ease
+     the tracking so they never run off the edge on a narrow phone. */
+  .label { white-space: normal; letter-spacing: 0.12em; }
+
+  /* Tighter display sizes: the desktop clamp minimum is still large at 375px. */
+  h1 { font-size: clamp(1.95rem, 9vw, 2.6rem); letter-spacing: -0.018em; }
+  h2 { font-size: clamp(1.4rem, 6.4vw, 1.8rem); }
+  .lede { font-size: 1.05rem; }
+
+  /* Plates get shorter so they punctuate rather than dominate the scroll. */
+  .band { min-height: min(62vh, 480px); }
+  .plate--bridge { min-height: min(58vh, 440px); }
+  .plate--grove { min-height: min(52vh, 380px); }
+
+  /* Footer stacks rather than splitting into two thin columns. */
+  .footer { gap: 1.5rem; }
+
+  /* Footer links are navigation, not prose, so they get real tap area.
+     Inline links inside a sentence stay as they are: they cannot be 44px
+     without breaking the line, and the tap-target minimum exempts them. */
+  .footer a {
+    display: inline-block;
+    padding: 0.55rem 0;
+    min-height: 44px;
+    line-height: 1.9;
+  }
+  .footer p { display: flex; flex-wrap: wrap; gap: 0 0.85rem; align-items: center; }
+}
+
+@media (max-width: 420px) {
+  /* The lockup is 3:1; below this it crowds the CTA. */
+  .nav__lockup { height: 34px; }
+  /* The brand link shrink-wraps its image, so it needs its own tap height. */
+  .nav__brand { min-height: 44px; }
+}
