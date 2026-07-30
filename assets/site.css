@@ -227,6 +227,17 @@ em.mark { font-style: italic; color: var(--verdigris); }
   display: block;
   object-fit: contain;
 }
+/* Wrapper inserted by assets/logo-resolve.js so the reveal canvas can sit over
+   the mark. Sized by the mark itself, so if the script never runs the wrapper
+   never exists and the mark is unaffected. */
+.markfx { position: relative; display: block; line-height: 0; }
+.markfx > .markfx__c {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  display: block; pointer-events: none;
+}
+/* The image only hides while the canvas is actually painting it. */
+.markfx--running > .nav__mark { visibility: hidden; }
 .nav__wordmark {
   font-family: var(--display);
   font-size: 1.34rem;
