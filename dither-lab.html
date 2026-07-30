@@ -3,6 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- A tuning tool that ships with the site. robots.txt disallows crawling it,
+         but a disallowed URL can still be indexed if something links to it, and
+         only this meta actually keeps it out of an index. -->
+    <meta name="robots" content="noindex, nofollow" />
     <title>Dither lab — monsoon plate</title>
     <style>
       :root {

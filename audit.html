@@ -14,18 +14,11 @@
     <link rel="preload" href="./assets/fonts/Fraunces-var.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="./assets/fonts/Manrope-var.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="stylesheet" href="./assets/site.css" />
-
-    <!-- og:url and og:image point at the live GitHub Pages deployment, not at
-         monsoonsai.com, because that domain does not resolve yet and a scraper
-         cannot fetch an image from a host that is not answering. canonical
-         deliberately still points at the real domain so search engines credit
-         it once it is live. Swap the two og lines back to monsoonsai.com the
-         day the domain connects. -->
     <meta property="og:type" content="website" />
     <meta property="og:title" content="Free AI visibility audit | Monsoons" />
     <meta property="og:description" content="We run five questions your customers actually ask on Gemini, ChatGPT and Perplexity, then send you exactly what came back. Free." />
-    <meta property="og:url" content="https://hyrumhurst1.github.io/monsoons-site/audit.html" />
-    <meta property="og:image" content="https://hyrumhurst1.github.io/monsoons-site/assets/og-audit.png" />
+    <meta property="og:url" content="https://monsoonsai.com/audit.html" />
+    <meta property="og:image" content="https://monsoonsai.com/assets/og-audit.png" />
     <meta name="twitter:card" content="summary_large_image" />
     <style>
       .form { display: flex; flex-direction: column; gap: 1rem; }
@@ -194,9 +187,47 @@
       }
       import { SUPABASE } from './assets/supabase-config.js';
 
-      const sb = createClient(SUPABASE.url, SUPABASE.anonKey);
       const form = document.getElementById('form');
       const msg = document.getElementById('msg');
+
+      // Until the Supabase keys are filled in, this page is live but the form has
+      // nowhere to write. Letting someone type six fields and then fail is the
+      // worst outcome — that is a real prospect who tried and got nothing. So when
+      // the config is still on placeholders, the form becomes a text-us path
+      // instead, prefilled with what they typed, and says so up front.
+      const CONFIGURED = !/YOUR-PROJECT|YOUR-ANON-KEY/.test(
+        String(SUPABASE.url) + String(SUPABASE.anonKey)
+      );
+      const sb = CONFIGURED ? createClient(SUPABASE.url, SUPABASE.anonKey) : null;
+
+      if (!CONFIGURED) {
+        const btn = form.querySelector('button');
+        btn.textContent = 'Text us my details';
+        msg.className = 'msg';
+        msg.textContent =
+          'Quickest way right now is a text. Fill this in and the button opens your ' +
+          'messages with it ready to send.';
+        form.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const f = new FormData(form);
+          if (f.get('nickname')) return;
+          const line = (label, key) => {
+            const v = (f.get(key) || '').trim();
+            return v ? `${label}: ${v}\n` : '';
+          };
+          const body =
+            'Free audit request\n' +
+            line('Business', 'business_name') +
+            line('What we do', 'vertical') +
+            line('City', 'city') +
+            line('Name', 'contact_name') +
+            line('Reach me at', 'contact') +
+            line('Website', 'website') +
+            line('People ask for', 'notes');
+          window.location.href =
+            'sms:+14802891294?&body=' + encodeURIComponent(body);
+        });
+      } else {
 
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -230,6 +261,8 @@
           '<h2>Got it.</h2><p class="lede">We will run your questions and get back to' +
           ' you within two business days with the screenshots.</p>';
       });
+
+      } // end CONFIGURED branch
     </script>
     <script type="module" src="./assets/logo-resolve.js"></script>
   </body>

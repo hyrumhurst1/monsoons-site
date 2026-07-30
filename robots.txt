@@ -1,41 +1,69 @@
 # We sell AI visibility, so our own site invites every answer engine in.
 # If we blocked these crawlers we could not credibly sell this.
+#
+# The distinction worth knowing, because it decides what is safe to block:
+# training crawlers (GPTBot, Google-Extended, CCBot, Applebot-Extended) affect
+# what a model knows. Retrieval crawlers (OAI-SearchBot, PerplexityBot,
+# ChatGPT-User, Bingbot, Googlebot) affect what gets named in a live answer.
+# The second group is the entire product. Never disallow one of those.
+#
+# One group per user-agent. There used to be two `User-agent: *` records, an
+# Allow near the top and a Disallow at the bottom; a crawler that honours only
+# the first matching group would have ignored the Disallow completely and the
+# tuning page was reachable after all.
 
 User-agent: *
 Allow: /
+Disallow: /dither-lab.html
 
-# Answer engines and their crawlers, named explicitly.
-User-agent: GPTBot
-Allow: /
-
+# --- OpenAI ---
 User-agent: OAI-SearchBot
 Allow: /
 
 User-agent: ChatGPT-User
 Allow: /
 
+User-agent: GPTBot
+Allow: /
+
+# --- Anthropic ---
 User-agent: ClaudeBot
 Allow: /
 
 User-agent: Claude-User
 Allow: /
 
+User-agent: Claude-SearchBot
+Allow: /
+
+# --- Perplexity ---
 User-agent: PerplexityBot
 Allow: /
 
 User-agent: Perplexity-User
 Allow: /
 
+# --- Google. Gemini's grounding rides on Googlebot; Google-Extended is the
+#     separate opt-in for model training. Both wanted. ---
+User-agent: Googlebot
+Allow: /
+
 User-agent: Google-Extended
 Allow: /
 
+# --- Microsoft. Bing's index is what Copilot answers from, and it usually picks
+#     up a new page faster than Google does. ---
+User-agent: Bingbot
+Allow: /
+
+# --- Others that end up in retrieval or training corpora ---
 User-agent: Applebot
 Allow: /
 
 User-agent: Applebot-Extended
 Allow: /
 
-User-agent: Bingbot
+User-agent: CCBot
 Allow: /
 
 User-agent: Amazonbot
@@ -44,8 +72,7 @@ Allow: /
 User-agent: meta-externalagent
 Allow: /
 
-# Internal tooling is not for indexing.
-User-agent: *
-Disallow: /dither-lab.html
+User-agent: DuckAssistBot
+Allow: /
 
 Sitemap: https://monsoonsai.com/sitemap.xml

@@ -1,22 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- lastmod matters more here than on most sites: answer engines weight fresh,
+     corroborated sources, which is the mechanism we sell. Update a page's date
+     when its content actually changes and not otherwise — a sitemap claiming
+     everything changed today is a signal crawlers learn to discount.
+     dither-lab.html is deliberately absent. It is a tuning tool, not a page. -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://monsoonsai.com/</loc>
+    <lastmod>2026-07-29</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://monsoonsai.com/about.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://monsoonsai.com/audit.html</loc>
+    <lastmod>2026-07-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
+    <loc>https://monsoonsai.com/about.html</loc>
+    <lastmod>2026-07-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://monsoonsai.com/work.html</loc>
+    <lastmod>2026-07-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>

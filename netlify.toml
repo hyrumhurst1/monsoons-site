@@ -34,8 +34,16 @@
   to = "/about.html"
   status = 200
 
-## Anything unmatched goes home rather than showing a 404.
+[[redirects]]
+  from = "/work"
+  to = "/work.html"
+  status = 200
+
+## Unmatched paths serve the real 404 page. This previously pointed at
+## /index.html with a 404 status, which meant 404.html was built and styled but
+## never actually shown, and a mistyped URL returned the home page under an
+## error code — confusing for a visitor and for a crawler.
 [[redirects]]
   from = "/*"
-  to = "/index.html"
+  to = "/404.html"
   status = 404
