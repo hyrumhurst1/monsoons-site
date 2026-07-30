@@ -396,7 +396,10 @@ em.mark { font-style: italic; color: var(--verdigris); }
 /* ---------- won't-promise list ---------- */
 
 .wont { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.95rem; }
-.wont li { display: grid; grid-template-columns: 1.4rem 1fr; gap: 0.7rem; font-size: var(--t-sm); }
+.wont li {
+  display: grid; grid-template-columns: 1.4rem minmax(0, 54ch);
+  gap: 0.7rem; font-size: var(--t-sm); line-height: 1.62;
+}
 .wont li::before { content: '\2014'; color: var(--verdigris); }
 .wont b { font-weight: 700; }
 
@@ -607,3 +610,7 @@ details p { margin-top: 0.6rem; font-size: var(--t-sm); color: var(--slate); }
   color: var(--ink-2);
   font-style: italic;
 }
+
+/* Lists do not inherit the paragraph measure. Govern them explicitly rather
+   than relying on their container happening to be narrow. */
+.answer__list li, .plan__desc, .tier ul li { max-width: 54ch; }
