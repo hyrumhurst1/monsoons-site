@@ -241,12 +241,13 @@ em.mark { font-style: italic; color: var(--verdigris); }
   gap: 1.15rem;
 }
 
-/* Copy stays narrow inside that wide rail: the left edge lines up with every
-   section below while the text keeps a readable measure. */
-.hero__inner > *,
-.band__inner > *,
-.plate__inner > * { max-width: 36rem; }
+/* Named elements, not `> *` — same reason as the note on .wrap. `.lede` is
+   already 46ch and `.label` is nowrap, so only the headings and the button row
+   need saying. `.hero__cta` is explicit because at 36rem the button plus its
+   note wrap to two lines, and uncapped they would snap to one. */
 .hero__inner h1 { max-width: 22ch; }
+.band__inner h2, .plate__inner h2 { max-width: 36rem; }
+.hero__cta { max-width: 36rem; }
 .hero .label { color: var(--verdigris-lt); }
 .hero h1 { color: var(--bone); }
 .hero .lede { color: #b9c2cb; }
@@ -306,14 +307,28 @@ em.mark { font-style: italic; color: var(--verdigris); }
 .section--dark .lede, .section--dark p { color: #b9c2cb; }
 .section--dark h2, .section--dark h3 { color: var(--bone); }
 
+/* One rail, and only one. Every section centres its content in the same 68rem
+   wrap, so the left edge is identical from the hero to the footer. That is the
+   container's job and its only job.
+
+   The measure is NOT the container's job — it belongs to the thing being read.
+   `p` is 58ch, `.lede` 46ch, `.wont li` 54ch, `.plan__desc` 48ch. A container
+   rule like `.wrap--narrow > *` sits at (0,2,0) and out-specifies every one of
+   those, so 46rem/736px was overriding 58ch/~493px and making body copy half
+   again wider than intended — the single most recognisable amateur-web tell
+   there is. A wrapper can only ever floor a measure, never cap one, so there is
+   no narrow variant any more. Nothing needs one. */
 .wrap { max-width: 68rem; margin: 0 auto; display: flex; flex-direction: column; gap: var(--s4); }
-/* Narrow limits the measure, not the rail. Centring it moved the left
-   edge on every other section, which is what made the page feel
-   assembled rather than laid out. */
-.wrap--narrow { max-width: 68rem; }
-.wrap--narrow > *, .wrap--narrow .head { max-width: 46rem; }
-.head { display: flex; flex-direction: column; gap: 0.5rem; }
+
+/* The heading group is the one block with no intrinsic measure: h1 and h2 carry
+   none of their own, and a 1088px heading is not a heading. */
+.head { display: flex; flex-direction: column; gap: 0.5rem; max-width: 46rem; }
 .head .lede { margin-top: 0.4rem; }
+
+/* Blocks whose internal geometry breaks before their text does. Past ~46rem the
+   FAQ marker and the plan price detach from what they belong to and the row
+   stops reading as a row. */
+.faq, .plans, .steps, .callout, .wont { max-width: 46rem; }
 
 
 /* ---------- grids ---------- */
@@ -406,7 +421,9 @@ details p { margin-top: 0.6rem; font-size: var(--t-sm); color: var(--slate); }
 
 .prose { display: flex; flex-direction: column; gap: 1.15rem; }
 .prose p { font-size: var(--t-base); }
-.prose h2 { margin-top: 1.2rem; }
+/* No .prose h2 margin. Flex gaps do not collapse with margins, so a 1.2rem
+   top margin summed with the 1.15rem prose gap and pushed every eyebrow
+   37.6px from its heading. The .head wrapper owns that spacing now. */
 .pull {
   font-family: var(--display); font-size: clamp(1.2rem, 2.6vw, 1.55rem);
   line-height: 1.32; color: var(--ink);
