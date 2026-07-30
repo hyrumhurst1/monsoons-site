@@ -11,7 +11,8 @@
     <link rel="canonical" href="https://monsoonsai.com/work.html" />
     <link rel="preload" href="./assets/fonts/Fraunces-var.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="./assets/fonts/Manrope-var.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="icon" href="./assets/favicon.png" />
+    <link rel="icon" href="./assets/favicon-32.png" />
+    <link rel="apple-touch-icon" href="./assets/apple-touch-icon.png" />
     <link rel="stylesheet" href="./assets/site.css" />
 
     <!-- og:url and og:image point at the live GitHub Pages deployment, not at
@@ -32,7 +33,7 @@
     <nav class="nav" aria-label="Primary">
       <div class="nav__inner">
         <a class="nav__brand" href="./index.html" aria-label="Monsoons AI home">
-          <img class="nav__mark" src="./assets/logo-mark-clean.png" alt="" width="42" height="42" />
+          <img class="nav__mark" src="./assets/logo-mark-128.png" alt="" width="42" height="42" />
           <span class="nav__wordmark">Monsoons <span>AI</span></span>
         </a>
         <div class="nav__links">
@@ -151,6 +152,25 @@
       </div>
     </section>
 
+    <!-- ======================= PLAZA PLATE ======================= -->
+    <!-- Sits after the honest caveats and before "who this works for": the pay
+         numbers, then the catch, then what the job actually looks like. -->
+    <section class="plate plate--plaza">
+      <canvas id="plazaPlate" aria-hidden="true"></canvas>
+      <img id="plazaSrc" src="./media/plaza-web.jpg" alt="" />
+      <div class="plate__inner">
+        <div class="head">
+          <p class="label">The job</p>
+          <h2>Fifteen businesses in one parking lot</h2>
+        </div>
+        <p class="lede">
+          This is the whole reason the numbers work. Every plaza in Mesa has a dozen
+          owners standing behind their own counters at two in the afternoon. You do not
+          have to find anyone. You just have to walk in.
+        </p>
+      </div>
+    </section>
+
     <!-- ======================= WHO ======================= -->
     <section class="section section--tint">
       <div class="wrap">
@@ -255,7 +275,7 @@
       <div class="footer__inner">
         <div class="footer__brand">
           <a class="footer__lockup" href="./index.html" aria-label="Monsoons AI home">
-            <img class="footer__mark" src="./assets/logo-mark-clean.png" alt="" width="52" height="52" />
+            <img class="footer__mark" src="./assets/logo-mark-128.png" alt="" width="52" height="52" />
             <span class="footer__wordmark">Monsoons <span>AI</span></span>
           </a>
           <p>We get East Valley businesses named when customers ask AI who to hire.</p>
@@ -282,5 +302,44 @@
       </div>
     </footer>
     <script type="module" src="./assets/logo-resolve.js"></script>
+    <script type="module">
+      import { initDither } from './assets/dither.js';
+
+      // Rows of storefronts, light poles and parked cars: repeated discrete
+      // elements at varying depth, which is what the dither resolves well.
+      // A crest travelling left to right, distinct from the plates on the home
+      // and about pages so the three do not read as the same canned effect.
+      const cv = document.getElementById('plazaPlate');
+      const im = document.getElementById('plazaSrc');
+      if (cv && im) {
+        const narrow = matchMedia('(max-width: 620px)').matches;
+        let started = false;
+        const start = () => {
+          if (started || !im.naturalWidth) return;
+          started = true;
+          initDither(cv, im, {
+            fit: 'cover',
+            pixelSize: narrow ? 4 : 3,
+            whiteClip: 0.16,
+            brightness: 8,
+            contrast: 15,
+            levels: 8,
+            leanRadius: 0.36,
+            leanStrength: 5,
+            wave: true,
+            waveSpeed: 0.0014,
+            waveWidth: 0.34,
+            waveGain: 0.7,
+            waveLift: 5,
+            waveTilt: 0.22,
+          });
+        };
+        new IntersectionObserver((entries, obs) => {
+          if (!entries.some((e) => e.isIntersecting)) return;
+          if (im.complete) { start(); obs.disconnect(); }
+          else im.addEventListener('load', start, { once: true });
+        }, { rootMargin: '300px' }).observe(cv);
+      }
+    </script>
   </body>
 </html>

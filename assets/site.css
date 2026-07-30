@@ -5,9 +5,11 @@
 
 /* Self-hosted variable fonts. System defaults are the loudest "generated"
    tell there is, and a webfont CDN adds a round trip plus a privacy problem.
-   Latin subset only, so both files together are under 200KB.
+   Latin subset only: 68KB + 28KB, and both are preloaded on all five pages.
    Fraunces (OFL) carries the display personality; Manrope (OFL) keeps
-   navigation, body copy, and calls to action crisp and contemporary. */
+   navigation, body copy, and calls to action crisp and contemporary.
+   Two families and no more. A third face is the point where a page starts
+   looking assembled rather than designed. */
 
 @font-face {
   font-family: 'Fraunces';
@@ -486,6 +488,65 @@ em.mark { font-style: italic; color: var(--verdigris); }
 /* Only claim the pointer once the dots are actually the visible layer. */
 .dtext--on > .dtext__bleed { pointer-events: auto; }
 
+/* ---------- entrance motion ----------
+
+   Two mechanisms, no JavaScript in either.
+
+   The hero runs a timed stagger on load, because that is a page-load sequence and
+   there is no scroll to drive it. Section heads use a view() scroll timeline. That
+   choice matters: the usual approach is an IntersectionObserver adding a class,
+   which means the elements must start hidden in CSS, which means a JS error or a
+   blocked script leaves the page permanently blank. Here, a browser that does not
+   support scroll timelines simply shows the content — the failure mode is "no
+   animation", never "no content".
+
+   Kept to eyebrows, headings, ledes and the hero CTA. Revealing every element on
+   the page is a documented generated-design tell; revealing the thing you are meant
+   to read next is direction. */
+
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media not (prefers-reduced-motion: reduce) {
+  /* Load sequence. `both` fill keeps each child hidden through its own delay, and
+     because this is declared in the stylesheet it applies before first paint —
+     nothing flashes in and then hides. */
+  .hero__inner > *,
+  .page-hero__inner .head > * {
+    animation: rise-in 0.66s var(--ease) both;
+  }
+  .hero__inner > *:nth-child(1),
+  .page-hero__inner .head > *:nth-child(1) { animation-delay: 0.06s; }
+  .hero__inner > *:nth-child(2),
+  .page-hero__inner .head > *:nth-child(2) { animation-delay: 0.17s; }
+  .hero__inner > *:nth-child(3),
+  .page-hero__inner .head > *:nth-child(3) { animation-delay: 0.29s; }
+  .hero__inner > *:nth-child(4) { animation-delay: 0.41s; }
+}
+
+@supports (animation-timeline: view()) {
+  @media not (prefers-reduced-motion: reduce) {
+    /* Scroll-driven, so no delay applies — the stagger comes from giving each
+       child a slightly later slice of the entry phase instead. Anything already
+       on screen at load sits at progress 1 and is simply visible. */
+    .section .head > *,
+    .plate__inner .head > *,
+    .band__inner .head > * {
+      animation: rise-in linear both;
+      animation-timeline: view();
+      animation-range: entry 8% entry 46%;
+    }
+    .section .head > *:nth-child(2),
+    .plate__inner .head > *:nth-child(2),
+    .band__inner .head > *:nth-child(2) { animation-range: entry 14% entry 54%; }
+    .section .head > *:nth-child(3),
+    .plate__inner .head > *:nth-child(3),
+    .band__inner .head > *:nth-child(3) { animation-range: entry 20% entry 62%; }
+  }
+}
+
 .hero::after {
   content: ''; position: absolute; inset: 0; pointer-events: none;
   background:
@@ -945,6 +1006,24 @@ details p { margin-top: 0.6rem; font-size: var(--t-sm); color: var(--slate); }
     linear-gradient(to right, rgba(22,32,43,0.7) 0%, rgba(22,32,43,0.15) 46%, transparent 70%);
 }
 
+/* Plaza, on the recruiting page. Shortest of the three plates: it is a break in a
+   page of numbers, not a destination. */
+.plate--plaza { min-height: min(62vh, 480px); display: flex; align-items: flex-end; }
+.plate--plaza canvas {
+  -webkit-mask-image:
+    linear-gradient(to bottom, transparent 0%, #000 12%, #000 88%, transparent 100%),
+    linear-gradient(to right, transparent 0%, #000 7%, #000 93%, transparent 100%);
+  mask-image:
+    linear-gradient(to bottom, transparent 0%, #000 12%, #000 88%, transparent 100%),
+    linear-gradient(to right, transparent 0%, #000 7%, #000 93%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}
+.plate--plaza::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(to top, rgba(22,32,43,0.93) 0%, rgba(22,32,43,0.5) 42%, transparent 74%);
+}
+
 
 /* ---------- packages as editorial rows ----------
    Five cards on an auto-fit grid always orphaned the last one and mixed three
@@ -1096,6 +1175,7 @@ details p { margin-top: 0.6rem; font-size: var(--t-sm); color: var(--slate); }
   .plate--bridge { min-height: min(58vh, 440px); }
   .plate--grove { min-height: min(52vh, 380px); }
   .plate--saguaro { min-height: min(58vh, 420px); }
+  .plate--plaza { min-height: min(50vh, 360px); }
 
   .page-hero { min-height: 500px; }
   .page-hero::before {
