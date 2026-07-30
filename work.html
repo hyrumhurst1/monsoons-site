@@ -150,7 +150,7 @@
          numbers, then the catch, then what the job actually looks like. -->
     <section class="plate plate--plaza">
       <canvas id="plazaPlate" aria-hidden="true"></canvas>
-      <img id="plazaSrc" src="./media/plaza-web.jpg" alt="" />
+      <img decoding="async" id="plazaSrc" data-src="./media/plaza-web.jpg" alt="" />
       <div class="plate__inner">
         <div class="head">
           <p class="label">The job</p>
@@ -296,43 +296,32 @@
     </footer>
     <script type="module" src="./assets/logo-resolve.js"></script>
     <script type="module">
-      import { initDither } from './assets/dither.js';
+      import { mountPlate } from './assets/plate.js';
 
       // Rows of storefronts, light poles and parked cars: repeated discrete
-      // elements at varying depth, which is what the dither resolves well.
-      // A crest travelling left to right, distinct from the plates on the home
-      // and about pages so the three do not read as the same canned effect.
-      const cv = document.getElementById('plazaPlate');
-      const im = document.getElementById('plazaSrc');
-      if (cv && im) {
-        const narrow = matchMedia('(max-width: 620px)').matches;
-        let started = false;
-        const start = () => {
-          if (started || !im.naturalWidth) return;
-          started = true;
-          initDither(cv, im, {
-            fit: 'cover',
-            pixelSize: narrow ? 4 : 3,
-            whiteClip: 0.16,
-            brightness: 8,
-            contrast: 15,
-            levels: 8,
-            leanRadius: 0.36,
-            leanStrength: 5,
-            wave: true,
-            waveSpeed: 0.0014,
-            waveWidth: 0.34,
-            waveGain: 0.7,
-            waveLift: 5,
-            waveTilt: 0.22,
-          });
-        };
-        new IntersectionObserver((entries, obs) => {
-          if (!entries.some((e) => e.isIntersecting)) return;
-          if (im.complete) { start(); obs.disconnect(); }
-          else im.addEventListener('load', start, { once: true });
-        }, { rootMargin: '300px' }).observe(cv);
-      }
+      // elements at varying depth, which is what the dither resolves well. The
+      // crest travels left to right, distinct from the plates on the home and
+      // about pages so the three do not read as the same canned effect.
+      const narrow = matchMedia('(max-width: 620px)').matches;
+      mountPlate(
+        document.getElementById('plazaPlate'),
+        document.getElementById('plazaSrc'),
+        {
+          pixelSize: narrow ? 4 : 3,
+          whiteClip: 0.16,
+          brightness: 8,
+          contrast: 15,
+          levels: 8,
+          leanRadius: 0.36,
+          leanStrength: 5,
+          wave: true,
+          waveSpeed: 0.0014,
+          waveWidth: 0.34,
+          waveGain: 0.7,
+          waveLift: 5,
+          waveTilt: 0.22,
+        }
+      );
     </script>
   </body>
 </html>

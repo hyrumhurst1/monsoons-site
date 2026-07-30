@@ -110,7 +110,7 @@
 
     <section class="plate plate--grove">
       <canvas id="grovePlate" aria-hidden="true"></canvas>
-      <img id="groveSrc" src="./media/grove.jpg" alt="" />
+      <img decoding="async" id="groveSrc" data-src="./media/grove.jpg" alt="" />
       <div class="plate__inner">
         <div class="head">
           <p class="label">Then and now</p>
@@ -208,7 +208,7 @@
 
     <section class="plate plate--saguaro">
       <canvas id="saguaroPlate" aria-hidden="true"></canvas>
-      <img id="saguaroSrc" src="./media/saguaro-forest-web.jpg" alt="" />
+      <img decoding="async" id="saguaroSrc" data-src="./media/saguaro-forest-web.jpg" alt="" />
       <div class="plate__inner">
         <div class="head">
           <p class="label">The long view</p>
@@ -316,22 +316,21 @@
       </div>
     </footer>
     <script type="module">
-      import { initDither } from './assets/dither.js';
+      import { mountPlate } from './assets/plate.js';
 
-      const cv = document.getElementById('grovePlate');
-      const im = document.getElementById('groveSrc');
       const narrow = matchMedia('(max-width: 620px)').matches;
 
-      const start = () =>
-        initDither(cv, im, {
-          fit: 'cover',
+      // Citrus grove. Carries the page's one travelling crest, and deliberately a
+      // different gesture from the bridge on the home page: right to left, slanted
+      // the other way, slower and wider, so it reads as a swell rather than a pop.
+      mountPlate(
+        document.getElementById('grovePlate'),
+        document.getElementById('groveSrc'),
+        {
           pixelSize: narrow ? 4 : 3,
           whiteClip: 0.2,
           brightness: 10,
           levels: 8,
-          // Same idea as the bridge, deliberately a different gesture: the crest
-          // travels right to left, slants the other way, and swells slower and
-          // wider so it reads as a swell rather than a pop.
           wave: true,
           waveDir: -1,
           waveTilt: -0.28,
@@ -339,43 +338,26 @@
           waveWidth: 0.38,
           waveGain: 0.85,
           waveLift: 6,
-        });
-
-      if (im.complete && im.naturalWidth) start();
-      else im.addEventListener('load', start, { once: true });
+        }
+      );
 
       // Saguaro forest. Hundreds of separate silhouettes receding into haze, which
       // is exactly what the dither wants: discrete elements at varying depth.
-      // Deliberately still — the grove plate above already carries a crest, and
-      // two travelling waves on one page compete with each other. Interaction
-      // here comes from the pointer instead.
-      const sg = document.getElementById('saguaroPlate');
-      const sgImg = document.getElementById('saguaroSrc');
-      if (sg && sgImg) {
-        let started = false;
-        const startSaguaro = () => {
-          if (started || !sgImg.naturalWidth) return;
-          started = true;
-          initDither(sg, sgImg, {
-            fit: 'cover',
-            pixelSize: narrow ? 4 : 3,
-            whiteClip: 0.14,
-            brightness: 6,
-            contrast: 16,
-            levels: 8,
-            leanRadius: 0.42,
-            leanStrength: 6,
-          });
-        };
-        // Below the fold, so decode only once it is near. Guarding on
-        // naturalWidth as well means a cached image that is already complete
-        // still starts when the observer fires.
-        new IntersectionObserver((entries, obs) => {
-          if (!entries.some((e) => e.isIntersecting)) return;
-          if (sgImg.complete) { startSaguaro(); obs.disconnect(); }
-          else sgImg.addEventListener('load', startSaguaro, { once: true });
-        }, { rootMargin: '300px' }).observe(sg);
-      }
+      // Deliberately still — the grove plate above already carries a crest, and two
+      // travelling waves on one page compete. Interaction here is the pointer.
+      mountPlate(
+        document.getElementById('saguaroPlate'),
+        document.getElementById('saguaroSrc'),
+        {
+          pixelSize: narrow ? 4 : 3,
+          whiteClip: 0.14,
+          brightness: 6,
+          contrast: 16,
+          levels: 8,
+          leanRadius: 0.42,
+          leanStrength: 6,
+        }
+      );
     </script>
     <script type="module" src="./assets/logo-resolve.js"></script>
   </body>

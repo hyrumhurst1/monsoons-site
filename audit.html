@@ -129,7 +129,7 @@
 
           <aside class="split__plate">
             <canvas id="ocotilloPlate" aria-hidden="true"></canvas>
-            <img id="ocotilloSrc" src="./media/ocotillo.jpg" alt="" />
+            <img decoding="async" id="ocotilloSrc" data-src="./media/ocotillo.jpg" alt="" />
             <p class="split__caption">Ocotillo · East Valley</p>
           </aside>
         </div>
@@ -168,22 +168,18 @@
     </footer>
 
     <script type="module">
-      import { initDither } from './assets/dither.js';
+      import { mountPlate } from './assets/plate.js';
       import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-      const oc = document.getElementById('ocotilloPlate');
-      const ocImg = document.getElementById('ocotilloSrc');
-      if (oc && ocImg && matchMedia('(min-width: 901px)').matches) {
-        const startPlate = () =>
-          initDither(oc, ocImg, {
-            fit: 'cover',
-            pixelSize: 3,
-            whiteClip: 0.14,
-            levels: 8,
-            leanStrength: 5,
-          });
-        if (ocImg.complete && ocImg.naturalWidth) startPlate();
-        else ocImg.addEventListener('load', startPlate, { once: true });
+      // Only mounted wide, where the plate is actually visible beside the form.
+      // Below that the CSS hides it, so the source is never fetched at all —
+      // which is the right outcome on a phone, on the page that has to convert.
+      if (matchMedia('(min-width: 1181px)').matches) {
+        mountPlate(
+          document.getElementById('ocotilloPlate'),
+          document.getElementById('ocotilloSrc'),
+          { pixelSize: 3, whiteClip: 0.14, levels: 8, leanStrength: 5 }
+        );
       }
       import { SUPABASE } from './assets/supabase-config.js';
 

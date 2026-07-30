@@ -305,7 +305,7 @@
     <!-- ======================= BRIDGE PLATE ======================= -->
     <section class="plate plate--bridge">
       <canvas id="bridgePlate" aria-hidden="true"></canvas>
-      <img id="bridgeSrc" src="./media/bridge.jpg" alt="" />
+      <img decoding="async" id="bridgeSrc" data-src="./media/bridge.jpg" alt="" />
       <div class="plate__inner">
         <p class="label">Where we work</p>
         <h2>Twenty minutes from anywhere in the East Valley</h2>
@@ -635,6 +635,7 @@
     <script type="module">
       import { initDither } from './assets/dither.js';
       import { initDitherHeadings } from './assets/dither-text.js';
+      import { mountPlate } from './assets/plate.js';
       const canvas = document.getElementById('plate');
       const video = document.getElementById('plateSrc');
       // Fine grid at 3px. On a narrow canvas that dissolves the subject into
@@ -700,13 +701,12 @@
           waveLift: 10,
         }],
       ];
+      // Gated on scroll. These sit well below the fold, so fetching a 1400px
+      // source and opening a render loop during first paint spent bandwidth and
+      // main-thread time on something nobody could see yet.
       for (const [canvasId, imgId, opts] of stills) {
-        const cv = document.getElementById(canvasId);
-        const im = document.getElementById(imgId);
-        if (!cv || !im) continue;
-        const start = () => initDither(cv, im, { fit: 'cover', ...opts });
-        if (im.complete && im.naturalWidth) start();
-        else im.addEventListener('load', start, { once: true });
+        mountPlate(document.getElementById(canvasId),
+                   document.getElementById(imgId), opts);
       }
 
       // Dithered headings. Three, not ten. These are the three lines the whole

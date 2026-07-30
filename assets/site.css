@@ -34,7 +34,20 @@
   --paper-2: #eeeae1;
   --ink: #1c1a17;
   --slate: #5a6169;
-  --verdigris: #3f7a6b;
+  /* Verdigris, 8% darker than the original #3f7a6b. Same hue, same family, and
+     the difference is not perceptible side by side — but the original measured
+     4.54:1 on --paper and only 4.16:1 on --paper-2, so every link, quiet button
+     and accent word sitting on a tinted section failed AA for small text. The
+     tint is where the answer comparison and the pricing grid live, which is the
+     part of the page a buyer actually reads.
+
+     Measured now: 5.18:1 on --paper, 4.75:1 on --paper-2, 5.70:1 for white text
+     on a verdigris fill (was 4.99:1, so the buttons improved too).
+
+     One token rather than a separate text variant on purpose: a fill/text split
+     is a rule someone has to remember, and the darker value is correct for both. */
+  --verdigris: #3a7062;
+  /* On indigo. Measured 6.19:1, no change needed. */
   --verdigris-lt: #6aab98;
   --line: #ddd8ce;
   --line-dk: #2c3a49;
