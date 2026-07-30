@@ -1607,11 +1607,47 @@ em.mark { font-style: italic; color: var(--verdigris); }
 .answer--after .answer__state { color: var(--verdigris-text); }
 .answer--after .answer__you { color: var(--ink-2); font-style: normal; }
 
-.ba__note {
+/* The honesty label for the before/after pair.
+   It sits ABOVE the panels, not below them: this is the one element on the site
+   that could be mistaken for a client result, and a disclaimer placed under the
+   thing it disclaims is the standard way to have one nobody reads.
+   Not italic and not grey — those are the styles a reader has learned to skip.
+   The verdigris rule ties it to the panel it belongs to. */
+.ba__label {
+  max-width: 46rem;
+  font-size: var(--t-sm);
+  line-height: 1.55;
+  color: var(--ink-2);
+  border-left: 3px solid var(--verdigris);
+  padding-left: 0.9rem;
+}
+.ba__label span {
+  display: inline-block;
   font-size: var(--t-xs);
-  color: var(--slate);
-  font-style: italic;
-  max-width: 46ch;
+  font-weight: 750;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--verdigris-text);
+  margin-right: 0.45rem;
+}
+/* On the illustrative row itself, for anyone who scrolls straight into the panel
+   and never sees the label above it. */
+.is-you__tag {
+  font-family: var(--body);
+  /* 0.68rem, not 0.62. The audit noted the small labels were nearing the size a
+     local-business owner has to work to read, and this one carries an honesty
+     disclosure, so it is the wrong place to be clever about scale. */
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.1rem 0.4rem;
+  margin-left: 0.45rem;
+  vertical-align: 0.12em;
+  white-space: nowrap;
 }
 
 @media (max-width: 700px) {
